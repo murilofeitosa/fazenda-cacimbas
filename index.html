@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fazenda Cacimbas - Controle de Chuvas</title>
     
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
@@ -536,14 +534,13 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="header-section">
         <div class="container">
             <div class="d-flex align-items-center justify-content-between flex-wrap">
                 <div class="d-flex align-items-center">
                     <img src="https://cdn-icons-png.flaticon.com/512/2830/2830227.png" alt="Logo" class="logo-img">
                     <div>
-                        <h1 class="header-title">Fazenda Cacimbas - Sistema Plúvio Pro</h1>
+                        <h1 class="header-title">Fazenda Cacimbas - Controle de Chuvas</h1>
                         <p class="header-subtitle mb-0" id="currentDate"></p>
                     </div>
                 </div>
@@ -555,7 +552,6 @@
     </div>
 
     <div class="container pb-5">
-        <!-- Dashboard Executivo -->
         <div class="executive-summary fade-in-up">
             <h2 class="mb-3"><i class="fas fa-brain me-2"></i>Resumo Executivo - Análise Inteligente</h2>
             <div class="row">
@@ -584,7 +580,6 @@
             <div id="alertasContainer"></div>
         </div>
 
-        <!-- Filtros -->
         <div class="filter-section">
             <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Filtrar Visualização</h5>
             <div class="d-flex flex-wrap">
@@ -596,12 +591,9 @@
             </div>
         </div>
 
-        <!-- KPIs -->
         <div class="row mb-4" id="kpiContainer">
-            <!-- KPIs gerados dinamicamente -->
-        </div>
+            </div>
 
-        <!-- Comparativo de Safras -->
         <div class="glass-card mb-4" id="comparativoSection" style="display: none;">
             <h3 class="chart-title">
                 <span><i class="fas fa-balance-scale"></i>Comparativo Entre Safras</span>
@@ -609,7 +601,6 @@
             <div class="comparison-container" id="comparisonContainer"></div>
         </div>
 
-        <!-- Estatísticas Avançadas -->
         <div class="glass-card mb-4">
             <h3 class="chart-title">
                 <span><i class="fas fa-chart-pie"></i>Estatísticas Detalhadas - Inverno Atual</span>
@@ -617,7 +608,6 @@
             <div class="stats-grid" id="statsContainer"></div>
         </div>
 
-        <!-- Gráfico Comparativo Multi-Safra -->
         <div class="chart-container-wrapper">
             <h3 class="chart-title">
                 <span><i class="fas fa-chart-line"></i>Evolução Comparativa - Todas as Safras</span>
@@ -626,7 +616,6 @@
             <canvas id="multiSeasonChart"></canvas>
         </div>
 
-        <!-- Gráfico de Distribuição -->
         <div class="chart-container-wrapper">
             <h3 class="chart-title">
                 <span><i class="fas fa-chart-bar"></i>Distribuição de Intensidade</span>
@@ -636,7 +625,6 @@
         </div>
 
         <div class="row">
-            <!-- Análise de Intervalos -->
             <div class="col-lg-6 mb-4">
                 <div class="chart-container-wrapper">
                     <h3 class="chart-title">
@@ -646,7 +634,6 @@
                 </div>
             </div>
 
-            <!-- Radar Comparativo -->
             <div class="col-lg-6 mb-4">
                 <div class="chart-container-wrapper">
                     <h3 class="chart-title">
@@ -657,7 +644,6 @@
             </div>
         </div>
 
-        <!-- Mapa de Calor Estilo GitHub -->
         <div class="glass-card mb-4">
             <h3 class="chart-title">
                 <span><i class="fas fa-calendar-alt"></i>Calendário de Chuvas - Últimos 12 Meses</span>
@@ -665,7 +651,6 @@
             <div class="heatmap-github" id="githubHeatmap"></div>
         </div>
 
-        <!-- Tabela Detalhada -->
         <div class="glass-card">
             <h3 class="chart-title">
                 <span><i class="fas fa-table"></i>Registro Completo</span>
@@ -688,18 +673,15 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <div class="footer">
         <div class="container text-center text-muted">
             <p class="mb-1"><i class="fas fa-tint me-2"></i>Sistema de Monitoramento Pluviométrico</p>
-            <p class="mb-0">© 2026 Fazenda Cacimbas - Desenvolvido com <i class="fas fa-heart text-danger"></i> para o Agronegócio</p>
+            <p class="mb-0">© 2026 Fazenda Cacimbas - Desenvolvido por <strong>Murilo Feitosa</strong></p>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     <script>
@@ -777,9 +759,7 @@
             { date: '2026-02-07', value: 8, season: '2026' }
         ];
 
-        // ===== MESMO CÓDIGO JAVASCRIPT DA VERSÃO ANTERIOR =====
-        // (Copiando todo o JavaScript da versão anterior aqui)
-        
+        // ===== PROCESSAMENTO DE DADOS =====
         const mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         
         const dadosChuva = rawData.map(item => ({
@@ -797,6 +777,7 @@
             day: 'numeric'
         });
 
+        // Calcular estatísticas por temporada
         const estatisticas = {};
         dadosChuva.forEach(item => {
             if (!estatisticas[item.temporada]) {
@@ -818,6 +799,7 @@
             stat.datas.push(new Date(item.data));
         });
 
+        // Calcular média, mediana, desvio padrão
         Object.keys(estatisticas).forEach(temp => {
             const stat = estatisticas[temp];
             stat.media = stat.total / stat.count;
@@ -830,6 +812,7 @@
             const variancia = stat.valores.reduce((acc, val) => acc + Math.pow(val - stat.media, 2), 0) / stat.count;
             stat.desvioPadrao = Math.sqrt(variancia);
             
+            // Calcular intervalos entre chuvas
             stat.intervalos = [];
             for (let i = 0; i < stat.datas.length - 1; i++) {
                 const diff = Math.abs(stat.datas[i] - stat.datas[i + 1]);
@@ -842,11 +825,13 @@
 
         const temporadaAtual = dadosChuva[0].temporada;
 
+        // ===== DASHBOARD EXECUTIVO =====
         function gerarDashboardExecutivo() {
             const statAtual = estatisticas[temporadaAtual];
             const ultimaData = new Date(dadosChuva[0].data);
             const diasDesdeUltima = Math.floor((hoje - ultimaData) / (1000 * 60 * 60 * 24));
             
+            // Status da Safra
             const temporadas = Object.keys(estatisticas).sort();
             const indiceAtual = temporadas.indexOf(temporadaAtual);
             let statusTexto, statusDesc;
@@ -873,9 +858,11 @@
             document.getElementById('statusSafra').textContent = statusTexto;
             document.getElementById('statusDesc').textContent = statusDesc;
             
+            // Última Chuva
             document.getElementById('ultimaChuva').textContent = `Há ${diasDesdeUltima} dias`;
             document.getElementById('ultimaChuvaDesc').textContent = `Última: ${dadosChuva[0].chuva_mm}mm em ${ultimaData.toLocaleDateString('pt-BR')}`;
             
+            // Projeção
             const diasDecorridos = Math.floor((hoje - new Date(dadosChuva[dadosChuva.length - 1].data)) / (1000 * 60 * 60 * 24));
             const taxaDiaria = statAtual.total / Math.max(diasDecorridos, 1);
             const projecao180 = taxaDiaria * 180;
@@ -883,9 +870,11 @@
             document.getElementById('projecao').textContent = `${projecao180.toFixed(0)}mm`;
             document.getElementById('projecaoDesc').textContent = `Projeção para 180 dias (${taxaDiaria.toFixed(2)}mm/dia)`;
             
+            // Alertas
             const alertasContainer = document.getElementById('alertasContainer');
             alertasContainer.innerHTML = '';
             
+            // Alerta de estiagem
             if (diasDesdeUltima > 15) {
                 alertasContainer.innerHTML += `
                     <div class="alert-box alert-warning">
@@ -897,6 +886,7 @@
                 `;
             }
             
+            // Alerta de chuva forte recente
             if (dadosChuva[0].chuva_mm > 50 && diasDesdeUltima <= 3) {
                 alertasContainer.innerHTML += `
                     <div class="alert-box alert-success">
@@ -908,6 +898,7 @@
                 `;
             }
             
+            // Alerta de performance vs média
             const mediaHistorica = Object.values(estatisticas).reduce((acc, s) => acc + s.media, 0) / Object.keys(estatisticas).length;
             if (statAtual.media < mediaHistorica * 0.7) {
                 alertasContainer.innerHTML += `
@@ -921,6 +912,7 @@
             }
         }
 
+        // ===== KPIs =====
         function gerarKPIs() {
             const container = document.getElementById('kpiContainer');
             container.innerHTML = '';
@@ -983,6 +975,7 @@
             });
         }
 
+        // ===== ESTATÍSTICAS DETALHADAS =====
         function gerarEstatisticas() {
             const container = document.getElementById('statsContainer');
             const stat = estatisticas[temporadaAtual];
@@ -1007,6 +1000,7 @@
             `).join('');
         }
 
+        // ===== GRÁFICO MULTI-SAFRA =====
         function criarGraficoMultiSafra() {
             const ctx = document.getElementById('multiSeasonChart').getContext('2d');
             
@@ -1085,6 +1079,7 @@
             });
         }
 
+        // ===== GRÁFICO DE DISTRIBUIÇÃO =====
         function criarGraficoDistribuicao() {
             const ctx = document.getElementById('distributionChart').getContext('2d');
             
@@ -1166,6 +1161,7 @@
             });
         }
 
+        // ===== GRÁFICO DE INTERVALOS =====
         function criarGraficoIntervalos() {
             const ctx = document.getElementById('intervalsChart').getContext('2d');
             const stat = estatisticas[temporadaAtual];
@@ -1206,6 +1202,7 @@
             });
         }
 
+        // ===== RADAR COMPARATIVO =====
         function criarRadarChart() {
             const ctx = document.getElementById('radarChart').getContext('2d');
             
@@ -1271,12 +1268,15 @@
             });
         }
 
+        // ===== MAPA DE CALOR GITHUB =====
         function criarMapaCalorGitHub() {
             const container = document.getElementById('githubHeatmap');
             
+            // Últimos 365 dias
             const hoje = new Date();
             const umAnoAtras = new Date(hoje.getTime() - (365 * 24 * 60 * 60 * 1000));
             
+            // Criar objeto com todas as datas
             const dadosPorDia = {};
             let dataAtual = new Date(umAnoAtras);
             while (dataAtual <= hoje) {
@@ -1285,12 +1285,14 @@
                 dataAtual.setDate(dataAtual.getDate() + 1);
             }
             
+            // Preencher com dados reais
             dadosChuva.forEach(d => {
                 if (dadosPorDia[d.data] !== undefined) {
                     dadosPorDia[d.data] = d.chuva_mm;
                 }
             });
             
+            // Determinar níveis (0-4 baseado em percentis)
             const valores = Object.values(dadosPorDia).filter(v => v > 0);
             valores.sort((a, b) => a - b);
             const p25 = valores[Math.floor(valores.length * 0.25)] || 10;
@@ -1332,6 +1334,7 @@
             container.innerHTML = html;
         }
 
+        // ===== TABELA =====
         function preencherTabela() {
             const tbody = document.getElementById('tableBody');
             document.getElementById('recordCount').textContent = dadosChuva.length;
@@ -1377,6 +1380,7 @@
             });
         }
 
+        // ===== FILTROS =====
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1390,6 +1394,8 @@
                 } else {
                     document.getElementById('comparativoSection').style.display = 'none';
                 }
+                
+                // Aqui você poderia filtrar os gráficos também
             });
         });
 
@@ -1405,10 +1411,10 @@
                     <div class="comparison-card">
                         <h5 class="mb-3">${temp}</h5>
                         <div class="text-center">
-                            <div style="width: 110px; height: 110px; margin: 0 auto; background: conic-gradient(var(--primary-blue) ${percDoMaior * 3.6}deg, #e2e8f0 0deg); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <div style="width: 90px; height: 90px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                                    <strong style="font-size: 1.6rem; color: var(--primary-blue);">${stat.total.toFixed(0)}</strong>
-                                    <small style="font-size: 0.75rem; color: var(--text-secondary);">mm</small>
+                            <div style="width: 100px; height: 100px; margin: 0 auto; background: conic-gradient(var(--primary-blue) ${percDoMaior * 3.6}deg, #e0e0e0 0deg); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <div style="width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                                    <strong style="font-size: 1.5rem; color: var(--primary-blue);">${stat.total.toFixed(0)}</strong>
+                                    <small style="font-size: 0.7rem;">mm</small>
                                 </div>
                             </div>
                         </div>
@@ -1422,6 +1428,7 @@
             });
         }
 
+        // ===== INICIALIZAÇÃO =====
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 gerarDashboardExecutivo();
