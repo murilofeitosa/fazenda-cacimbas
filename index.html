@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fazenda Cacimbas - Monitoramento de Chuvas</title>
+    <title>Fazenda Cacimbas - Plúvio Ultimate</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -157,8 +157,6 @@
             background: rgba(255,255,255,0.5);
         }
         .dev-footer strong { color: var(--primary-blue); font-weight: 700; }
-        .heart-icon { color: #dc3545; animation: beat 1s infinite alternate; }
-        @keyframes beat { to { transform: scale(1.1); } }
     </style>
 </head>
 <body>
@@ -205,11 +203,14 @@
                 </div>
 
                 <div class="glass-card">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                         <h5 class="fw-bold mb-0"><i class="fas fa-calendar-alt me-2 text-primary"></i>Calendário de Chuvas</h5>
-                        <div class="d-flex gap-2 small">
-                            <span class="d-flex align-items-center gap-1"><div style="width:10px;height:10px;background:#a5d8ff"></div> Fraca</span>
-                            <span class="d-flex align-items-center gap-1"><div style="width:10px;height:10px;background:#1c7ed6"></div> Forte</span>
+                        <div class="d-flex gap-3 small align-items-center">
+                            <span class="text-muted bg-light px-2 py-1 rounded border">Números = Dias do Mês</span>
+                            <div class="d-flex gap-2">
+                                <span class="d-flex align-items-center gap-1"><div style="width:10px;height:10px;background:#a5d8ff"></div> Fraca</span>
+                                <span class="d-flex align-items-center gap-1"><div style="width:10px;height:10px;background:#1c7ed6"></div> Forte</span>
+                            </div>
                         </div>
                     </div>
                     <div id="heatmapContainer" class="heatmap-wrapper">
@@ -261,7 +262,7 @@
     <footer class="dev-footer">
         <div class="container">
             <p class="mb-0">
-                Desenvolvido com <i class="fas fa-heart heart-icon mx-1"></i> por <strong>Murilo Feitosa</strong>
+                Desenvolvido por <strong>Murilo Feitosa</strong>
             </p>
             <small class="text-muted">Fazenda Cacimbas &copy; 2026 - Todos os direitos reservados</small>
         </div>
