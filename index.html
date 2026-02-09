@@ -13,13 +13,19 @@
     
     <style>
         :root {
-            --primary-blue: #0d6efd;
-            --success-green: #198754;
-            --warning-yellow: #ffc107;
-            --danger-red: #dc3545;
-            --bg-light: #f0f2f5;
-            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            --glass-bg: rgba(255, 255, 255, 0.95);
+            --primary-blue: #2563eb;
+            --primary-blue-light: #3b82f6;
+            --success-green: #10b981;
+            --success-green-light: #34d399;
+            --warning-yellow: #f59e0b;
+            --danger-red: #ef4444;
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+            --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
         }
         
         * {
@@ -29,59 +35,63 @@
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-primary);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-primary);
             min-height: 100vh;
         }
         
-        /* Header Moderno */
+        /* Header Limpo */
         .header-section {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             color: white;
-            padding: 1.5rem 0;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 2rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             margin-bottom: 2rem;
         }
         
         .logo-img {
-            width: 60px;
-            height: 60px;
-            margin-right: 1rem;
+            width: 65px;
+            height: 65px;
+            margin-right: 1.2rem;
             filter: brightness(0) invert(1);
-            animation: pulse 2s ease-in-out infinite;
+            animation: pulse 3s ease-in-out infinite;
         }
         
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
         }
         
         .header-title {
-            font-size: 1.8rem;
+            font-size: 1.9rem;
             font-weight: 700;
-            margin-bottom: 0.2rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.5px;
         }
         
-        /* Cards com Glassmorphism */
+        .header-subtitle {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+        
+        /* Cards Limpos */
         .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
             padding: 1.5rem;
             box-shadow: var(--card-shadow);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .glass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-2px);
         }
         
-        /* KPIs Melhorados */
+        /* KPIs Modernos */
         .kpi-card {
             position: relative;
             overflow: hidden;
@@ -92,13 +102,19 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 5px;
+            width: 4px;
             height: 100%;
-            background: linear-gradient(180deg, var(--primary-blue), #0a58ca);
+            background: var(--primary-blue);
+            border-radius: 12px 0 0 12px;
         }
         
         .kpi-card.current-season::before {
-            background: linear-gradient(180deg, var(--success-green), #146c43);
+            background: linear-gradient(180deg, var(--success-green), var(--success-green-light));
+        }
+        
+        .kpi-card.current-season {
+            background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+            border-color: #a7f3d0;
         }
         
         .kpi-header {
@@ -108,25 +124,28 @@
             margin-bottom: 1rem;
         }
         
+        .kpi-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
         .kpi-value {
             font-size: 2.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, var(--primary-blue), #0a58ca);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--primary-blue);
             margin: 0.5rem 0;
+            line-height: 1;
         }
         
         .kpi-card.current-season .kpi-value {
-            background: linear-gradient(135deg, var(--success-green), #146c43);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--success-green);
         }
         
         .kpi-trend {
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             font-weight: 600;
             padding: 0.3rem 0.8rem;
             border-radius: 20px;
@@ -134,37 +153,43 @@
         }
         
         .trend-up {
-            background: rgba(25, 135, 84, 0.1);
-            color: var(--success-green);
+            background: #d1fae5;
+            color: #065f46;
         }
         
         .trend-down {
-            background: rgba(220, 53, 69, 0.1);
-            color: var(--danger-red);
+            background: #fee2e2;
+            color: #991b1b;
         }
         
         .trend-neutral {
-            background: rgba(108, 117, 125, 0.1);
-            color: #6c757d;
+            background: #f1f5f9;
+            color: #475569;
         }
         
         /* Dashboard Executivo */
         .executive-summary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary-blue) 0%, #1d4ed8 100%);
             color: white;
             border-radius: 16px;
             padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
         }
         
         .insight-card {
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
             border-radius: 12px;
-            padding: 1.2rem;
+            padding: 1.3rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
             margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .insight-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
         
         .insight-icon {
@@ -175,12 +200,13 @@
         /* Alertas */
         .alert-box {
             border-left: 4px solid;
-            padding: 1rem;
+            padding: 1rem 1.2rem;
             margin-bottom: 1rem;
             border-radius: 8px;
             display: flex;
             align-items: center;
             animation: slideIn 0.5s ease;
+            background: white;
         }
         
         @keyframes slideIn {
@@ -189,46 +215,50 @@
         }
         
         .alert-success {
-            background: rgba(25, 135, 84, 0.1);
             border-left-color: var(--success-green);
-            color: var(--success-green);
+            background: #f0fdf4;
+            color: #065f46;
         }
         
         .alert-warning {
-            background: rgba(255, 193, 7, 0.1);
             border-left-color: var(--warning-yellow);
-            color: #997404;
+            background: #fffbeb;
+            color: #92400e;
         }
         
         .alert-danger {
-            background: rgba(220, 53, 69, 0.1);
             border-left-color: var(--danger-red);
-            color: var(--danger-red);
+            background: #fef2f2;
+            color: #991b1b;
         }
         
-        /* Filtros Interativos */
+        /* Filtros */
         .filter-section {
-            background: white;
+            background: var(--bg-secondary);
             padding: 1.5rem;
             border-radius: 12px;
             margin-bottom: 2rem;
             box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
         }
         
         .filter-btn {
-            padding: 0.6rem 1.2rem;
-            border: 2px solid #e0e0e0;
+            padding: 0.6rem 1.3rem;
+            border: 2px solid var(--border-color);
             border-radius: 25px;
             background: white;
             margin: 0.3rem;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
         }
         
         .filter-btn:hover {
             border-color: var(--primary-blue);
             color: var(--primary-blue);
+            background: #eff6ff;
         }
         
         .filter-btn.active {
@@ -237,9 +267,9 @@
             border-color: var(--primary-blue);
         }
         
-        /* Mapa de Calor Estilo GitHub */
+        /* Mapa de Calor */
         .heatmap-github {
-            background: white;
+            background: var(--bg-secondary);
             padding: 2rem;
             border-radius: 12px;
             overflow-x: auto;
@@ -255,7 +285,7 @@
         .heatmap-cell {
             width: 12px;
             height: 12px;
-            border-radius: 2px;
+            border-radius: 3px;
             background: #ebedf0;
             cursor: pointer;
             transition: all 0.2s;
@@ -263,7 +293,7 @@
         
         .heatmap-cell:hover {
             transform: scale(1.5);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             z-index: 10;
         }
         
@@ -273,21 +303,29 @@
         .heatmap-cell[data-level="3"] { background: #30a14e; }
         .heatmap-cell[data-level="4"] { background: #216e39; }
         
-        /* Comparativo de Safras */
+        /* Comparativo */
         .comparison-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
+            gap: 1.2rem;
+            margin-top: 1.5rem;
         }
         
         .comparison-card {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid var(--border-color);
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: 1.8rem;
             text-align: center;
             position: relative;
             overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .comparison-card:hover {
+            border-color: var(--primary-blue);
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow-hover);
         }
         
         .comparison-card::before {
@@ -300,26 +338,26 @@
             background: linear-gradient(90deg, var(--primary-blue), var(--success-green));
         }
         
-        .progress-ring {
-            width: 120px;
-            height: 120px;
-            margin: 1rem auto;
-        }
-        
-        /* Estatísticas Avançadas */
+        /* Estatísticas */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1rem;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
         }
         
         .stat-item {
             text-align: center;
-            padding: 1rem;
-            background: rgba(13, 110, 253, 0.05);
+            padding: 1.3rem 1rem;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
             border-radius: 10px;
-            border: 2px solid rgba(13, 110, 253, 0.1);
+            border: 1px solid #bfdbfe;
+            transition: all 0.3s;
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--card-shadow-hover);
         }
         
         .stat-value {
@@ -330,39 +368,137 @@
         
         .stat-label {
             font-size: 0.85rem;
-            color: #6c757d;
-            margin-top: 0.3rem;
+            color: var(--text-secondary);
+            margin-top: 0.4rem;
+            font-weight: 500;
         }
         
-        /* Tabela Melhorada */
+        /* Tabela */
         .table-modern {
             border-collapse: separate;
             border-spacing: 0;
         }
         
         .table-modern thead th {
-            background: linear-gradient(135deg, var(--primary-blue), #0a58ca);
+            background: linear-gradient(135deg, var(--primary-blue), #1d4ed8);
             color: white;
             font-weight: 600;
             padding: 1rem;
             position: sticky;
             top: 0;
             z-index: 10;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .table-modern thead th:first-child {
+            border-radius: 8px 0 0 0;
+        }
+        
+        .table-modern thead th:last-child {
+            border-radius: 0 8px 0 0;
         }
         
         .table-modern tbody tr {
             transition: all 0.2s;
+            border-bottom: 1px solid var(--border-color);
         }
         
         .table-modern tbody tr:hover {
-            background: rgba(13, 110, 253, 0.05);
+            background: #f8fafc;
             transform: scale(1.01);
+        }
+        
+        .table-modern tbody td {
+            padding: 0.9rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .high-rain {
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+        
+        /* Charts */
+        .chart-container-wrapper {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .chart-title i {
+            color: var(--primary-blue);
+            margin-right: 0.6rem;
+        }
+        
+        .chart-info {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-blue);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #1d4ed8;
+        }
+        
+        /* Badges */
+        .badge {
+            font-weight: 600;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--bg-secondary);
+            padding: 2rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
         }
         
         /* Responsive */
         @media (max-width: 768px) {
             .header-title {
-                font-size: 1.3rem;
+                font-size: 1.4rem;
+            }
+            
+            .logo-img {
+                width: 50px;
+                height: 50px;
             }
             
             .kpi-value {
@@ -375,6 +511,10 @@
             
             .comparison-container {
                 grid-template-columns: 1fr;
+            }
+            
+            .chart-container-wrapper {
+                padding: 1.2rem;
             }
         }
         
@@ -393,53 +533,6 @@
         .fade-in-up {
             animation: fadeInUp 0.6s ease;
         }
-        
-        /* Loading State */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Chart Container */
-        .chart-container-wrapper {
-            background: white;
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 2rem;
-        }
-        
-        .chart-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 3px solid var(--bg-light);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .chart-title i {
-            color: var(--primary-blue);
-            margin-right: 0.6rem;
-        }
-        
-        .chart-info {
-            font-size: 0.85rem;
-            color: #6c757d;
-            font-weight: 400;
-        }
     </style>
 </head>
 <body>
@@ -451,10 +544,10 @@
                     <img src="https://cdn-icons-png.flaticon.com/512/2830/2830227.png" alt="Logo" class="logo-img">
                     <div>
                         <h1 class="header-title">Fazenda Cacimbas - Sistema Plúvio Pro</h1>
-                        <p class="mb-0 opacity-75" id="currentDate" style="font-size: 0.9rem;"></p>
+                        <p class="header-subtitle mb-0" id="currentDate"></p>
                     </div>
                 </div>
-                <div class="text-end">
+                <div class="text-end d-none d-md-block">
                     <i class="fas fa-cloud-showers-heavy fa-3x opacity-75"></i>
                 </div>
             </div>
@@ -595,6 +688,14 @@
         </div>
     </div>
 
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container text-center text-muted">
+            <p class="mb-1"><i class="fas fa-tint me-2"></i>Sistema de Monitoramento Pluviométrico</p>
+            <p class="mb-0">© 2026 Fazenda Cacimbas - Desenvolvido com <i class="fas fa-heart text-danger"></i> para o Agronegócio</p>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -676,7 +777,9 @@
             { date: '2026-02-07', value: 8, season: '2026' }
         ];
 
-        // ===== PROCESSAMENTO DE DADOS =====
+        // ===== MESMO CÓDIGO JAVASCRIPT DA VERSÃO ANTERIOR =====
+        // (Copiando todo o JavaScript da versão anterior aqui)
+        
         const mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         
         const dadosChuva = rawData.map(item => ({
@@ -694,7 +797,6 @@
             day: 'numeric'
         });
 
-        // Calcular estatísticas por temporada
         const estatisticas = {};
         dadosChuva.forEach(item => {
             if (!estatisticas[item.temporada]) {
@@ -716,7 +818,6 @@
             stat.datas.push(new Date(item.data));
         });
 
-        // Calcular média, mediana, desvio padrão
         Object.keys(estatisticas).forEach(temp => {
             const stat = estatisticas[temp];
             stat.media = stat.total / stat.count;
@@ -729,7 +830,6 @@
             const variancia = stat.valores.reduce((acc, val) => acc + Math.pow(val - stat.media, 2), 0) / stat.count;
             stat.desvioPadrao = Math.sqrt(variancia);
             
-            // Calcular intervalos entre chuvas
             stat.intervalos = [];
             for (let i = 0; i < stat.datas.length - 1; i++) {
                 const diff = Math.abs(stat.datas[i] - stat.datas[i + 1]);
@@ -742,16 +842,14 @@
 
         const temporadaAtual = dadosChuva[0].temporada;
 
-        // ===== DASHBOARD EXECUTIVO =====
         function gerarDashboardExecutivo() {
             const statAtual = estatisticas[temporadaAtual];
             const ultimaData = new Date(dadosChuva[0].data);
             const diasDesdeUltima = Math.floor((hoje - ultimaData) / (1000 * 60 * 60 * 24));
             
-            // Status da Safra
             const temporadas = Object.keys(estatisticas).sort();
             const indiceAtual = temporadas.indexOf(temporadaAtual);
-            let statusTexto, statusDesc, statusClass;
+            let statusTexto, statusDesc;
             
             if (indiceAtual > 0) {
                 const tempAnterior = temporadas[indiceAtual - 1];
@@ -760,30 +858,24 @@
                 if (percDif > 10) {
                     statusTexto = `+${percDif.toFixed(0)}% Acima`;
                     statusDesc = `${percDif.toFixed(1)}% superior ao inverno anterior`;
-                    statusClass = 'success';
                 } else if (percDif < -10) {
                     statusTexto = `${percDif.toFixed(0)}% Abaixo`;
                     statusDesc = `Atenção: ${Math.abs(percDif).toFixed(1)}% inferior ao inverno anterior`;
-                    statusClass = 'warning';
                 } else {
                     statusTexto = 'Dentro da Média';
                     statusDesc = 'Precipitação similar ao inverno anterior';
-                    statusClass = 'neutral';
                 }
             } else {
                 statusTexto = 'Primeira Safra';
                 statusDesc = 'Sem histórico para comparação';
-                statusClass = 'neutral';
             }
             
             document.getElementById('statusSafra').textContent = statusTexto;
             document.getElementById('statusDesc').textContent = statusDesc;
             
-            // Última Chuva
             document.getElementById('ultimaChuva').textContent = `Há ${diasDesdeUltima} dias`;
             document.getElementById('ultimaChuvaDesc').textContent = `Última: ${dadosChuva[0].chuva_mm}mm em ${ultimaData.toLocaleDateString('pt-BR')}`;
             
-            // Projeção
             const diasDecorridos = Math.floor((hoje - new Date(dadosChuva[dadosChuva.length - 1].data)) / (1000 * 60 * 60 * 24));
             const taxaDiaria = statAtual.total / Math.max(diasDecorridos, 1);
             const projecao180 = taxaDiaria * 180;
@@ -791,11 +883,9 @@
             document.getElementById('projecao').textContent = `${projecao180.toFixed(0)}mm`;
             document.getElementById('projecaoDesc').textContent = `Projeção para 180 dias (${taxaDiaria.toFixed(2)}mm/dia)`;
             
-            // Alertas
             const alertasContainer = document.getElementById('alertasContainer');
             alertasContainer.innerHTML = '';
             
-            // Alerta de estiagem
             if (diasDesdeUltima > 15) {
                 alertasContainer.innerHTML += `
                     <div class="alert-box alert-warning">
@@ -807,7 +897,6 @@
                 `;
             }
             
-            // Alerta de chuva forte recente
             if (dadosChuva[0].chuva_mm > 50 && diasDesdeUltima <= 3) {
                 alertasContainer.innerHTML += `
                     <div class="alert-box alert-success">
@@ -819,7 +908,6 @@
                 `;
             }
             
-            // Alerta de performance vs média
             const mediaHistorica = Object.values(estatisticas).reduce((acc, s) => acc + s.media, 0) / Object.keys(estatisticas).length;
             if (statAtual.media < mediaHistorica * 0.7) {
                 alertasContainer.innerHTML += `
@@ -833,7 +921,6 @@
             }
         }
 
-        // ===== KPIs =====
         function gerarKPIs() {
             const container = document.getElementById('kpiContainer');
             container.innerHTML = '';
@@ -878,7 +965,7 @@
                                 <i class="fas ${trendIcon} me-1"></i>${trendText}
                             </span>
                         </div>
-                        <div class="kpi-value">${stat.total.toFixed(0)} <small style="font-size: 1rem;">mm</small></div>
+                        <div class="kpi-value">${stat.total.toFixed(0)} <small style="font-size: 1rem; font-weight: 500;">mm</small></div>
                         <div class="text-muted small">
                             <div class="mb-1">
                                 <i class="fas fa-chart-bar me-2"></i>Média: <strong>${stat.media.toFixed(1)}mm</strong> | 
@@ -896,7 +983,6 @@
             });
         }
 
-        // ===== ESTATÍSTICAS DETALHADAS =====
         function gerarEstatisticas() {
             const container = document.getElementById('statsContainer');
             const stat = estatisticas[temporadaAtual];
@@ -921,15 +1007,14 @@
             `).join('');
         }
 
-        // ===== GRÁFICO MULTI-SAFRA =====
         function criarGraficoMultiSafra() {
             const ctx = document.getElementById('multiSeasonChart').getContext('2d');
             
             const datasets = [];
             const cores = [
-                { bg: 'rgba(255, 99, 132, 0.2)', border: 'rgba(255, 99, 132, 1)' },
-                { bg: 'rgba(54, 162, 235, 0.2)', border: 'rgba(54, 162, 235, 1)' },
-                { bg: 'rgba(75, 192, 192, 0.2)', border: 'rgba(75, 192, 192, 1)' }
+                { bg: 'rgba(239, 68, 68, 0.2)', border: 'rgba(239, 68, 68, 1)' },
+                { bg: 'rgba(37, 99, 235, 0.2)', border: 'rgba(37, 99, 235, 1)' },
+                { bg: 'rgba(16, 185, 129, 0.2)', border: 'rgba(16, 185, 129, 1)' }
             ];
             
             Object.keys(estatisticas).sort().forEach((temp, idx) => {
@@ -1000,7 +1085,6 @@
             });
         }
 
-        // ===== GRÁFICO DE DISTRIBUIÇÃO =====
         function criarGraficoDistribuicao() {
             const ctx = document.getElementById('distributionChart').getContext('2d');
             
@@ -1030,20 +1114,20 @@
                         label: 'Frequência de Eventos',
                         data: faixas.map(f => f.count),
                         backgroundColor: [
-                            'rgba(54, 162, 235, 0.7)',
-                            'rgba(75, 192, 192, 0.7)',
-                            'rgba(255, 206, 86, 0.7)',
-                            'rgba(255, 159, 64, 0.7)',
-                            'rgba(255, 99, 132, 0.7)',
-                            'rgba(153, 102, 255, 0.7)'
+                            'rgba(37, 99, 235, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(239, 68, 68, 0.7)',
+                            'rgba(139, 92, 246, 0.7)',
+                            'rgba(236, 72, 153, 0.7)'
                         ],
                         borderColor: [
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(255, 159, 64, 1)',
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(153, 102, 255, 1)'
+                            'rgba(37, 99, 235, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(139, 92, 246, 1)',
+                            'rgba(236, 72, 153, 1)'
                         ],
                         borderWidth: 2
                     }]
@@ -1082,7 +1166,6 @@
             });
         }
 
-        // ===== GRÁFICO DE INTERVALOS =====
         function criarGraficoIntervalos() {
             const ctx = document.getElementById('intervalsChart').getContext('2d');
             const stat = estatisticas[temporadaAtual];
@@ -1094,8 +1177,8 @@
                     datasets: [{
                         label: 'Dias entre Chuvas',
                         data: stat.intervalos,
-                        backgroundColor: 'rgba(13, 110, 253, 0.7)',
-                        borderColor: 'rgba(13, 110, 253, 1)',
+                        backgroundColor: 'rgba(37, 99, 235, 0.7)',
+                        borderColor: 'rgba(37, 99, 235, 1)',
                         borderWidth: 2
                     }]
                 },
@@ -1123,15 +1206,14 @@
             });
         }
 
-        // ===== RADAR COMPARATIVO =====
         function criarRadarChart() {
             const ctx = document.getElementById('radarChart').getContext('2d');
             
             const datasets = [];
             const cores = [
-                { bg: 'rgba(255, 99, 132, 0.2)', border: 'rgba(255, 99, 132, 1)' },
-                { bg: 'rgba(54, 162, 235, 0.2)', border: 'rgba(54, 162, 235, 1)' },
-                { bg: 'rgba(75, 192, 192, 0.2)', border: 'rgba(75, 192, 192, 1)' }
+                { bg: 'rgba(239, 68, 68, 0.2)', border: 'rgba(239, 68, 68, 1)' },
+                { bg: 'rgba(37, 99, 235, 0.2)', border: 'rgba(37, 99, 235, 1)' },
+                { bg: 'rgba(16, 185, 129, 0.2)', border: 'rgba(16, 185, 129, 1)' }
             ];
             
             Object.keys(estatisticas).sort().forEach((temp, idx) => {
@@ -1189,15 +1271,12 @@
             });
         }
 
-        // ===== MAPA DE CALOR GITHUB =====
         function criarMapaCalorGitHub() {
             const container = document.getElementById('githubHeatmap');
             
-            // Últimos 365 dias
             const hoje = new Date();
             const umAnoAtras = new Date(hoje.getTime() - (365 * 24 * 60 * 60 * 1000));
             
-            // Criar objeto com todas as datas
             const dadosPorDia = {};
             let dataAtual = new Date(umAnoAtras);
             while (dataAtual <= hoje) {
@@ -1206,14 +1285,12 @@
                 dataAtual.setDate(dataAtual.getDate() + 1);
             }
             
-            // Preencher com dados reais
             dadosChuva.forEach(d => {
                 if (dadosPorDia[d.data] !== undefined) {
                     dadosPorDia[d.data] = d.chuva_mm;
                 }
             });
             
-            // Determinar níveis (0-4 baseado em percentis)
             const valores = Object.values(dadosPorDia).filter(v => v > 0);
             valores.sort((a, b) => a - b);
             const p25 = valores[Math.floor(valores.length * 0.25)] || 10;
@@ -1255,7 +1332,6 @@
             container.innerHTML = html;
         }
 
-        // ===== TABELA =====
         function preencherTabela() {
             const tbody = document.getElementById('tableBody');
             document.getElementById('recordCount').textContent = dadosChuva.length;
@@ -1301,7 +1377,6 @@
             });
         }
 
-        // ===== FILTROS =====
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1315,12 +1390,9 @@
                 } else {
                     document.getElementById('comparativoSection').style.display = 'none';
                 }
-                
-                // Aqui você poderia filtrar os gráficos também
             });
         });
 
-        // ===== COMPARATIVO =====
         function gerarComparativo() {
             const container = document.getElementById('comparisonContainer');
             container.innerHTML = '';
@@ -1333,10 +1405,10 @@
                     <div class="comparison-card">
                         <h5 class="mb-3">${temp}</h5>
                         <div class="text-center">
-                            <div style="width: 100px; height: 100px; margin: 0 auto; background: conic-gradient(var(--primary-blue) ${percDoMaior * 3.6}deg, #e0e0e0 0deg); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <div style="width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                                    <strong style="font-size: 1.5rem; color: var(--primary-blue);">${stat.total.toFixed(0)}</strong>
-                                    <small style="font-size: 0.7rem;">mm</small>
+                            <div style="width: 110px; height: 110px; margin: 0 auto; background: conic-gradient(var(--primary-blue) ${percDoMaior * 3.6}deg, #e2e8f0 0deg); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <div style="width: 90px; height: 90px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                                    <strong style="font-size: 1.6rem; color: var(--primary-blue);">${stat.total.toFixed(0)}</strong>
+                                    <small style="font-size: 0.75rem; color: var(--text-secondary);">mm</small>
                                 </div>
                             </div>
                         </div>
@@ -1350,7 +1422,6 @@
             });
         }
 
-        // ===== INICIALIZAÇÃO =====
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 gerarDashboardExecutivo();
