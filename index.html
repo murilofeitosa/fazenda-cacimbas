@@ -24,7 +24,7 @@
             margin-bottom: 30px;
         }
         .logo-container img {
-            max-height: 140px; /* Ajuste o tamanho da logo aqui */
+            max-height: 140px; 
             width: auto;
             transition: transform 0.3s ease;
         }
@@ -109,7 +109,7 @@
             
             <div class="kpi-card mb-4">
                 <div class="card-header-custom">
-                    <span>📈 Evolução da Safra & Acumulado</span>
+                    <span>📈 Evolução do Inverno & Acumulado</span>
                     <span class="badge bg-primary bg-opacity-10 text-primary">Dados Reais</span>
                 </div>
                 <div class="card-body">
@@ -120,7 +120,7 @@
             <div class="kpi-card">
                 <div class="card-header-custom">
                     <span>📅 Mapa de Calor (Intensidade)</span>
-                    <small class="text-muted fw-normal">Visualização rápida dos dias chuvosos</small>
+                    <small class="text-muted fw-normal">Visualização dos dias chuvosos</small>
                 </div>
                 <div class="card-body p-0">
                     <div class="d-flex justify-content-end px-3 py-2 gap-2 small">
@@ -136,250 +136,3 @@
         </div>
 
         <div class="col-lg-4">
-            
-            <div class="kpi-card mb-4">
-                <div class="card-header-custom">
-                    <span>🌧️ Padrão Esperado</span>
-                </div>
-                <div class="card-body">
-                    <canvas id="avgChart" height="150"></canvas>
-                    <p class="text-center text-muted small mt-2 mb-0">Baseado no histórico de todas as safras</p>
-                </div>
-            </div>
-
-            <div class="kpi-card" style="height: 500px; display: flex; flex-direction: column;">
-                <div class="card-header-custom">
-                    <span>📋 Últimos Registros</span>
-                </div>
-                <div class="card-body p-0" style="overflow-y: auto;">
-                    <table class="table table-hover table-custom mb-0 text-center align-middle">
-                        <thead class="sticky-top bg-white">
-                            <tr>
-                                <th class="date-col">Data</th>
-                                <th class="vol-col">Volume (mm)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dataTableBody">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<script>
-    // --- 1. BASE DE DADOS (Adicione novos dados aqui) ---
-    const rawData = [
-        // Inverno 2025
-        { date: '2024-12-03', value: 40, season: '2025' },
-        { date: '2025-01-13', value: 14, season: '2025' },
-        { date: '2025-01-14', value: 105, season: '2025' },
-        { date: '2025-01-15', value: 34, season: '2025' },
-        { date: '2025-01-20', value: 95, season: '2025' },
-        { date: '2025-01-23', value: 10, season: '2025' },
-        { date: '2025-02-17', value: 11, season: '2025' },
-        { date: '2025-02-19', value: 22, season: '2025' },
-        { date: '2025-02-24', value: 34, season: '2025' },
-        { date: '2025-02-28', value: 50, season: '2025' },
-        { date: '2025-03-01', value: 56, season: '2025' },
-        { date: '2025-03-03', value: 10, season: '2025' },
-        { date: '2025-03-04', value: 30, season: '2025' },
-        { date: '2025-03-06', value: 6, season: '2025' },
-        { date: '2025-03-07', value: 100, season: '2025' },
-        { date: '2025-03-08', value: 24, season: '2025' },
-        { date: '2025-03-11', value: 5, season: '2025' },
-        { date: '2025-03-17', value: 9, season: '2025' },
-        { date: '2025-03-18', value: 77, season: '2025' },
-        { date: '2025-03-22', value: 9, season: '2025' },
-        { date: '2025-03-28', value: 40, season: '2025' },
-        { date: '2025-04-02', value: 10, season: '2025' },
-        { date: '2025-04-22', value: 19, season: '2025' },
-        { date: '2025-05-05', value: 11, season: '2025' },
-        { date: '2025-05-10', value: 10, season: '2025' },
-        { date: '2025-05-21', value: 9, season: '2025' },
-
-        // Inverno 2026 (Atual)
-        { date: '2025-10-21', value: 20, season: '2026' },
-        { date: '2025-12-22', value: 55, season: '2026' },
-        { date: '2025-12-23', value: 18, season: '2026' },
-        { date: '2026-01-21', value: 7, season: '2026' },
-        { date: '2026-01-27', value: 59, season: '2026' },
-        { date: '2026-01-29', value: 40, season: '2026' },
-        { date: '2026-02-05', value: 20, season: '2026' },
-        { date: '2026-02-07', value: 8, season: '2026' }
-    ];
-
-    // Configurações Iniciais
-    const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-    document.getElementById('display-date').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-    // --- 2. PROCESSAMENTO INTELIGENTE DE DADOS ---
-    
-    // Ordenar dados para gráficos (Cronológico) e tabela (Inverso)
-    const sortedData = [...rawData].sort((a, b) => new Date(a.date) - new Date(b.date));
-    const reverseData = [...rawData].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    // A. Calcular Acumulado Progressivo
-    let cumulativeSum = 0;
-    // Dica: Se quiser zerar o acumulado a cada ano, precisa de uma lógica extra.
-    // Aqui faremos acumulado contínuo para ver a evolução total da base de dados.
-    // Para reiniciar por safra, teria que filtrar. Vamos fazer Acumulado Global para simplificar a visualização.
-    const chartLabels = [];
-    const dailyValues = [];
-    const accumulatedValues = [];
-    
-    sortedData.forEach(d => {
-        chartLabels.push(new Date(d.date).toLocaleDateString('pt-BR').slice(0,5)); // DD/MM
-        dailyValues.push(d.value);
-        cumulativeSum += d.value;
-        accumulatedValues.push(cumulativeSum);
-    });
-
-    // B. Totais por Safra
-    const seasonTotals = {};
-    rawData.forEach(d => seasonTotals[d.season] = (seasonTotals[d.season] || 0) + d.value);
-
-    // C. Média Histórica
-    const monthlyTotals = {};
-    rawData.forEach(d => {
-        const key = `${new Date(d.date).getMonth()}-${new Date(d.date).getFullYear()}`;
-        if (!monthlyTotals[key]) monthlyTotals[key] = { month: new Date(d.date).getMonth(), val: 0 };
-        monthlyTotals[key].val += d.value;
-    });
-    
-    const monthSums = Array(12).fill(0);
-    const monthCounts = Array(12).fill(0);
-    Object.values(monthlyTotals).forEach(m => {
-        monthSums[m.month] += m.val;
-        monthCounts[m.month] += 1;
-    });
-    const historicAverages = monthSums.map((sum, i) => monthCounts[i] ? Math.round(sum / monthCounts[i]) : 0);
-
-    // --- 3. RENDERIZAÇÃO NA TELA ---
-
-    // A. Cards de Safra (KPIs)
-    const kpiContainer = document.getElementById('season-cards');
-    Object.keys(seasonTotals).sort().reverse().forEach((season, index) => {
-        // O primeiro card (ano mais recente) ganha destaque
-        const isLatest = index === 0;
-        const colorClass = isLatest ? 'border-primary border-3' : 'border-secondary border-opacity-25';
-        const textClass = isLatest ? 'text-primary' : 'text-muted';
-        
-        const cardHtml = `
-            <div class="col-md-6 col-lg-3">
-                <div class="kpi-card p-3 text-center d-flex flex-column justify-content-center ${colorClass}">
-                    <span class="text-uppercase small fw-bold text-secondary mb-1">Safra ${season}</span>
-                    <h2 class="fw-bold mb-0 ${textClass}">${seasonTotals[season]}<small class="fs-6 text-muted">mm</small></h2>
-                </div>
-            </div>
-        `;
-        kpiContainer.innerHTML += cardHtml;
-    });
-
-    // B. Tabela
-    const tableBody = document.getElementById('dataTableBody');
-    reverseData.forEach(item => {
-        // Definir cor se for chuva forte (>50mm)
-        const highlight = item.value >= 50 ? 'text-primary fw-bold' : '';
-        tableBody.innerHTML += `
-            <tr>
-                <td>${new Date(item.date).toLocaleDateString('pt-BR')}</td>
-                <td class="${highlight}">${item.value} mm</td>
-            </tr>
-        `;
-    });
-
-    // C. Heatmap (Mapa de Calor)
-    const heatmapContainer = document.getElementById('heatmap-grid');
-    // Pegar apenas os dados ordenados e criar os "quadradinhos"
-    // Para ficar bonito, vamos mostrar apenas os dias que tiveram chuva registrada
-    sortedData.forEach(item => {
-        const val = item.value;
-        let levelClass = 'level-0';
-        if (val > 0) levelClass = 'level-1';
-        if (val > 10) levelClass = 'level-2';
-        if (val > 30) levelClass = 'level-3';
-        if (val > 60) levelClass = 'level-4';
-
-        const dayDiv = document.createElement('div');
-        dayDiv.className = `heatmap-day ${levelClass}`;
-        // Tooltip nativo
-        dayDiv.title = `${new Date(item.date).toLocaleDateString('pt-BR')}: ${val}mm`;
-        dayDiv.innerHTML = new Date(item.date).getDate(); // Mostra o dia do mês dentro
-        heatmapContainer.appendChild(dayDiv);
-    });
-
-    // --- 4. CONFIGURAÇÃO DOS GRÁFICOS (CHART.JS) ---
-
-    // Gráfico 1: Combo (Barra + Linha Acumulada)
-    const ctxCombo = document.getElementById('comboChart').getContext('2d');
-    new Chart(ctxCombo, {
-        type: 'bar',
-        data: {
-            labels: chartLabels,
-            datasets: [
-                {
-                    label: 'Chuva do Dia',
-                    data: dailyValues,
-                    backgroundColor: 'rgba(13, 110, 253, 0.5)',
-                    borderColor: 'rgba(13, 110, 253, 1)',
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    order: 2,
-                    yAxisID: 'y'
-                },
-                {
-                    type: 'line',
-                    label: 'Acumulado Total',
-                    data: accumulatedValues,
-                    borderColor: '#198754', // Verde
-                    borderWidth: 2,
-                    tension: 0.4,
-                    pointRadius: 0,
-                    fill: false,
-                    order: 1,
-                    yAxisID: 'y1'
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            interaction: { mode: 'index', intersect: false },
-            plugins: { legend: { position: 'top' } },
-            scales: {
-                x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } },
-                y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Chuva (mm)' } },
-                y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Acumulado (mm)' } }
-            }
-        }
-    });
-
-    // Gráfico 2: Médias Históricas
-    new Chart(document.getElementById('avgChart'), {
-        type: 'radar', // Mudamos para Radar para ver a "área" de chuva
-        data: {
-            labels: monthNames,
-            datasets: [{
-                label: 'Média Histórica (mm)',
-                data: historicAverages,
-                backgroundColor: 'rgba(13, 110, 253, 0.2)',
-                borderColor: '#0d6efd',
-                pointBackgroundColor: '#fff',
-                pointBorderColor: '#0d6efd'
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: {
-                r: { angleLines: { display: true }, suggestedMin: 0 }
-            }
-        }
-    });
-
-</script>
-
-</body>
-</html>
