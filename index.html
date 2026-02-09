@@ -6,40 +6,41 @@
     <title>Plúvio - Fazenda Cacimbas</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
             --primary-color: #0d6efd;
-            --bg-color: #f4f7f6;
-            --card-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            --bg-color: #f0f2f5;
         }
         body { background-color: var(--bg-color); font-family: 'Segoe UI', system-ui, sans-serif; color: #333; }
         
-        /* HEADER & LOGO */
+        /* HEADER */
         .brand-header {
-            background: white;
-            padding: 25px 0;
-            border-bottom: 1px solid #e1e4e8;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 30px 0;
+            border-bottom: 1px solid #dce1e6;
             margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         }
-        .logo-container img {
-            max-height: 140px; 
+        .logo-img {
+            max-height: 120px; 
             width: auto;
-            transition: transform 0.3s ease;
+            border-radius: 50%; /* Deixa a logo redonda se for quadrada */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        .logo-container img:hover { transform: scale(1.02); }
 
         /* CARDS */
         .kpi-card {
             border: none;
             border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            transition: transform 0.2s;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
             height: 100%;
             background: white;
+            transition: transform 0.2s;
         }
-        .kpi-card:hover { transform: translateY(-3px); }
+        .kpi-card:hover { transform: translateY(-2px); }
         .card-header-custom {
             background: white;
             border-bottom: 1px solid #f0f0f0;
@@ -52,49 +53,74 @@
             align-items: center;
         }
 
-        /* HEATMAP (CALENDÁRIO DE CHUVAS) */
-        .heatmap-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
-            gap: 6px;
+        /* NOVO MAPA DE CALOR (Organizado por Mês) */
+        .heatmap-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
             padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
         }
-        .heatmap-day {
-            aspect-ratio: 1;
+        .month-block {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fff;
+            flex: 1 1 200px; /* Responsivo */
+            min-width: 180px;
+        }
+        .month-title {
+            font-size: 0.85em;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 4px;
+        }
+        .days-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .rain-day {
+            width: 32px;
+            height: 32px;
             border-radius: 6px;
-            background-color: #e9ecef;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 0.75em;
-            color: #666;
+            font-weight: bold;
+            color: white;
             cursor: pointer;
-            position: relative;
             transition: all 0.2s;
+            position: relative;
         }
-        .heatmap-day:hover { transform: scale(1.15); z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .rain-day:hover { transform: scale(1.1); z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         
-        /* Cores do Heatmap (Intensidade da Chuva) */
-        .level-0 { background-color: #f8f9fa; color: #adb5bd; } /* Seco/Muito pouco */
-        .level-1 { background-color: #dbeafe; color: #1e40af; font-weight: bold; } /* 1-10mm */
-        .level-2 { background-color: #60a5fa; color: white; font-weight: bold; } /* 11-30mm */
-        .level-3 { background-color: #2563eb; color: white; font-weight: bold; } /* 31-60mm */
-        .level-4 { background-color: #1e3a8a; color: white; font-weight: bold; border: 2px solid #fbbf24; } /* 60mm+ (Forte) */
+        /* Cores de Intensidade */
+        .lvl-1 { background-color: #a5d8ff; color: #004085; } /* Fraca */
+        .lvl-2 { background-color: #4dabf7; } /* Média */
+        .lvl-3 { background-color: #1c7ed6; } /* Forte */
+        .lvl-4 { background-color: #003e6b; border: 2px solid #ffd43b; } /* Tempestade */
 
-        /* TABLE */
-        .table-custom th { background-color: #f8f9fa; color: #6c757d; font-weight: 600; text-transform: uppercase; font-size: 0.8em; }
-        .date-col { width: 40%; }
-        .vol-col { width: 60%; }
+        /* TABELA */
+        .table-custom th { background-color: #f8f9fa; font-size: 0.8em; text-transform: uppercase; }
+        .table-custom tr:hover { background-color: #f8f9fa; }
 
     </style>
 </head>
 <body>
 
 <div class="brand-header text-center">
-    <div class="container logo-container">
-        <img src="logo.png" alt="Fazenda Cacimbas Plúvio" class="img-fluid mb-2">
-        <h5 class="text-secondary fw-light mb-0">Sistema de Monitoramento Pluviométrico</h5>
-        <small class="text-muted" id="display-date"></small>
+    <div class="container">
+        <img src="https://cdn-icons-png.flaticon.com/512/2830/2830227.png" alt="Logo" class="logo-img mb-3">
+        
+        <h3 class="fw-bold text-dark mb-0">Fazenda Cacimbas</h3>
+        <p class="text-muted mb-0">Sistema Plúvio | Monitoramento Inteligente</p>
+        <span class="badge bg-light text-secondary border mt-2" id="display-date"></span>
     </div>
 </div>
 
@@ -104,59 +130,58 @@
         </div>
 
     <div class="row g-4">
-        
         <div class="col-lg-8">
             
             <div class="kpi-card mb-4">
                 <div class="card-header-custom">
-                    <span>📈 Evolução das Chuvas & Acumulado</span>
-                    <span class="badge bg-primary bg-opacity-10 text-primary">Histórico Completo</span>
+                    <span><i class="fas fa-chart-line me-2"></i>Evolução & Acumulado</span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary">Histórico</span>
                 </div>
                 <div class="card-body">
-                    <canvas id="comboChart" height="140"></canvas>
+                    <canvas id="comboChart" height="130"></canvas>
                 </div>
             </div>
 
             <div class="kpi-card">
                 <div class="card-header-custom">
-                    <span>📅 Mapa de Calor (Dias de Chuva)</span>
-                    <small class="text-muted fw-normal">Intensidade por dia</small>
+                    <span><i class="fas fa-calendar-alt me-2"></i>Calendário de Chuvas</span>
+                    <small class="text-muted">Dias com registro</small>
                 </div>
-                <div class="card-body p-0">
-                    <div class="d-flex justify-content-end px-3 py-2 gap-2 small border-bottom">
-                        <span class="d-flex align-items-center gap-1"><div style="width:10px;height:10px;background:#dbeafe;border-radius:2px"></div> Fraca</span>
-                        <span class="d-flex align-items-center gap-1"><div style="width:10px;height:10px;background:#60a5fa;border-radius:2px"></div> Média</span>
-                        <span class="d-flex align-items-center gap-1"><div style="width:10px;height:10px;background:#1e3a8a;border-radius:2px"></div> Forte</span>
-                    </div>
-                    <div id="heatmap-grid" class="heatmap-container">
-                        </div>
+                
+                <div class="d-flex justify-content-end px-3 py-2 gap-3 small bg-light border-bottom">
+                    <span class="d-flex align-items-center gap-1"><div style="width:12px;height:12px;background:#a5d8ff;border-radius:2px"></div> Fraca</span>
+                    <span class="d-flex align-items-center gap-1"><div style="width:12px;height:12px;background:#4dabf7;border-radius:2px"></div> Média</span>
+                    <span class="d-flex align-items-center gap-1"><div style="width:12px;height:12px;background:#1c7ed6;border-radius:2px"></div> Forte</span>
+                    <span class="d-flex align-items-center gap-1"><div style="width:12px;height:12px;background:#003e6b;border:1px solid #ffd43b;border-radius:2px"></div> Extrema</span>
                 </div>
-            </div>
 
+                <div id="heatmap-container" class="heatmap-wrapper">
+                    </div>
+            </div>
         </div>
 
         <div class="col-lg-4">
             
             <div class="kpi-card mb-4">
                 <div class="card-header-custom">
-                    <span>🌧️ Padrão Histórico (Média)</span>
+                    <span><i class="fas fa-bullseye me-2"></i>Padrão da Região</span>
                 </div>
-                <div class="card-body">
-                    <canvas id="avgChart" height="200"></canvas>
-                    <p class="text-center text-muted small mt-2 mb-0">Comportamento médio dos meses (Todos os anos)</p>
+                <div class="card-body text-center">
+                    <canvas id="avgChart" height="220"></canvas>
+                    <small class="text-muted d-block mt-2">Comparativo da média histórica mensal</small>
                 </div>
             </div>
 
             <div class="kpi-card" style="height: 500px; display: flex; flex-direction: column;">
                 <div class="card-header-custom">
-                    <span>📋 Histórico Detalhado</span>
+                    <span><i class="fas fa-list me-2"></i>Últimos Registros</span>
                 </div>
                 <div class="card-body p-0" style="overflow-y: auto;">
-                    <table class="table table-hover table-custom mb-0 text-center align-middle">
-                        <thead class="sticky-top bg-white">
+                    <table class="table table-custom mb-0 text-center align-middle">
+                        <thead class="sticky-top bg-white border-bottom shadow-sm">
                             <tr>
-                                <th class="date-col">Data</th>
-                                <th class="vol-col">Volume (mm)</th>
+                                <th>Data</th>
+                                <th>Volume</th>
                             </tr>
                         </thead>
                         <tbody id="dataTableBody">
@@ -164,15 +189,14 @@
                     </table>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
 <script>
-    // --- 1. BASE DE DADOS COMPLETA ---
+    // --- 1. DADOS (Histórico Completo) ---
     const rawData = [
-        // INVERNO 2024 (Nov 2023 - Abr 2024)
+        // INVERNO 2024
         { date: '2023-11-06', value: 6, season: '2024' },
         { date: '2023-11-28', value: 8, season: '2024' },
         { date: '2023-12-18', value: 9, season: '2024' },
@@ -205,7 +229,7 @@
         { date: '2024-04-21', value: 23, season: '2024' },
         { date: '2024-04-22', value: 11, season: '2024' },
 
-        // INVERNO 2025 (Dez 2024 - Mai 2025)
+        // INVERNO 2025
         { date: '2024-12-03', value: 40, season: '2025' },
         { date: '2025-01-13', value: 14, season: '2025' },
         { date: '2025-01-14', value: 105, season: '2025' },
@@ -233,7 +257,7 @@
         { date: '2025-05-10', value: 10, season: '2025' },
         { date: '2025-05-21', value: 9, season: '2025' },
 
-        // INVERNO 2026 (Atual: Out 2025 - Fev 2026)
+        // INVERNO 2026
         { date: '2025-10-21', value: 20, season: '2026' },
         { date: '2025-12-22', value: 55, season: '2026' },
         { date: '2025-12-23', value: 18, season: '2026' },
@@ -244,106 +268,128 @@
         { date: '2026-02-07', value: 8, season: '2026' }
     ];
 
-    // --- 2. CONFIGURAÇÕES E CÁLCULOS ---
     const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-    document.getElementById('display-date').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('display-date').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-    // Ordenações
-    const sortedData = [...rawData].sort((a, b) => new Date(a.date) - new Date(b.date)); // Antigo -> Novo
-    const reverseData = [...rawData].sort((a, b) => new Date(b.date) - new Date(a.date)); // Novo -> Antigo
+    // Ordenação
+    const sortedData = [...rawData].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const reverseData = [...rawData].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    // A. Cálculo de Acumulado Global (Linha Verde)
+    // --- 2. CÁLCULOS E LÓGICA ---
+
+    // Acumulados e Gráfico
     let cumulativeSum = 0;
     const chartLabels = [];
     const dailyValues = [];
     const accumulatedValues = [];
     
     sortedData.forEach(d => {
-        chartLabels.push(new Date(d.date).toLocaleDateString('pt-BR').slice(0,5)); // DD/MM
+        chartLabels.push(new Date(d.date).toLocaleDateString('pt-BR').slice(0,5)); 
         dailyValues.push(d.value);
         cumulativeSum += d.value;
         accumulatedValues.push(cumulativeSum);
     });
 
-    // B. Totais por Inverno (Cards)
+    // Totais por Inverno
     const seasonTotals = {};
     rawData.forEach(d => seasonTotals[d.season] = (seasonTotals[d.season] || 0) + d.value);
 
-    // C. Média Histórica (Radar)
+    // Média Histórica
     const monthlyTotals = {};
     rawData.forEach(d => {
-        const month = new Date(d.date).getMonth();
-        const year = new Date(d.date).getFullYear();
-        const key = `${month}-${year}`; // Chave única por mês/ano
-        if (!monthlyTotals[key]) monthlyTotals[key] = { month: month, val: 0 };
+        const key = `${new Date(d.date).getMonth()}-${new Date(d.date).getFullYear()}`;
+        if (!monthlyTotals[key]) monthlyTotals[key] = { month: new Date(d.date).getMonth(), val: 0 };
         monthlyTotals[key].val += d.value;
     });
     
     const monthSums = Array(12).fill(0);
     const monthCounts = Array(12).fill(0);
-    
-    // Soma os totais mensais e conta quantos "Janeiros", "Fevereiros" existem na base
     Object.values(monthlyTotals).forEach(m => {
         monthSums[m.month] += m.val;
         monthCounts[m.month] += 1;
     });
-    
     const historicAverages = monthSums.map((sum, i) => monthCounts[i] ? Math.round(sum / monthCounts[i]) : 0);
 
-    // --- 3. RENDERIZAÇÃO DOM ---
+    // --- 3. RENDERIZAÇÃO ---
 
-    // Cards de Resumo
+    // A. Cards KPI (Invernos)
     const kpiContainer = document.getElementById('season-cards');
     Object.keys(seasonTotals).sort().reverse().forEach((season, index) => {
         const isLatest = index === 0;
-        const colorClass = isLatest ? 'border-primary border-3' : 'border-secondary border-opacity-25';
-        const textClass = isLatest ? 'text-primary' : 'text-muted';
+        const borderClass = isLatest ? 'border-primary border-2' : 'border-light';
+        const titleClass = isLatest ? 'text-primary' : 'text-secondary';
         
-        const cardHtml = `
+        kpiContainer.innerHTML += `
             <div class="col-md-6 col-lg-4">
-                <div class="kpi-card p-3 text-center d-flex flex-column justify-content-center ${colorClass}">
-                    <span class="text-uppercase small fw-bold text-secondary mb-1">Inverno ${season}</span>
-                    <h2 class="fw-bold mb-0 ${textClass}">${seasonTotals[season]} <small class="fs-6 text-muted">mm</small></h2>
+                <div class="kpi-card p-3 text-center d-flex flex-column justify-content-center ${borderClass}">
+                    <span class="text-uppercase small fw-bold text-muted mb-1">Inverno ${season}</span>
+                    <h2 class="fw-bold mb-0 ${titleClass}">${seasonTotals[season]} <small class="fs-6 text-muted">mm</small></h2>
                 </div>
             </div>
         `;
-        kpiContainer.innerHTML += cardHtml;
     });
 
-    // Tabela Detalhada
+    // B. Heatmap Inovador (Agrupado por Mês)
+    const heatmapContainer = document.getElementById('heatmap-container');
+    
+    // Agrupar dados por Mês/Ano (Ex: "10-2025" -> Array de dias)
+    const groupedByMonth = {};
+    // Ordenar do mais recente para o antigo para leitura melhor
+    [...sortedData].reverse().forEach(d => {
+        const dateObj = new Date(d.date);
+        const key = `${dateObj.getMonth()}-${dateObj.getFullYear()}`;
+        if (!groupedByMonth[key]) {
+            groupedByMonth[key] = {
+                monthName: monthNames[dateObj.getMonth()],
+                year: dateObj.getFullYear(),
+                days: []
+            };
+        }
+        groupedByMonth[key].days.push(d);
+    });
+
+    // Criar visual
+    Object.values(groupedByMonth).forEach(group => {
+        // Ordenar dias dentro do mês (1, 2, 3...)
+        group.days.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+        const block = document.createElement('div');
+        block.className = 'month-block';
+        
+        let daysHtml = '';
+        group.days.forEach(day => {
+            const val = day.value;
+            let lvl = 'lvl-1';
+            if (val > 15) lvl = 'lvl-2';
+            if (val > 40) lvl = 'lvl-3';
+            if (val > 80) lvl = 'lvl-4';
+            
+            daysHtml += `<div class="rain-day ${lvl}" title="${new Date(day.date).toLocaleDateString('pt-BR')}: ${val}mm">${new Date(day.date).getDate()}</div>`;
+        });
+
+        block.innerHTML = `
+            <div class="month-title">${group.monthName} ${group.year}</div>
+            <div class="days-grid">${daysHtml}</div>
+        `;
+        heatmapContainer.appendChild(block);
+    });
+
+    // C. Tabela
     const tableBody = document.getElementById('dataTableBody');
     reverseData.forEach(item => {
-        const highlight = item.value >= 50 ? 'text-primary fw-bold' : '';
+        const style = item.value >= 50 ? 'fw-bold text-primary' : '';
         tableBody.innerHTML += `
             <tr>
                 <td>${new Date(item.date).toLocaleDateString('pt-BR')}</td>
-                <td class="${highlight}">${item.value} mm</td>
+                <td class="${style}">${item.value} mm</td>
             </tr>
         `;
     });
 
-    // Heatmap
-    const heatmapContainer = document.getElementById('heatmap-grid');
-    sortedData.forEach(item => {
-        const val = item.value;
-        let levelClass = 'level-0';
-        if (val > 0) levelClass = 'level-1';
-        if (val > 10) levelClass = 'level-2';
-        if (val > 30) levelClass = 'level-3';
-        if (val > 60) levelClass = 'level-4';
-
-        const dayDiv = document.createElement('div');
-        dayDiv.className = `heatmap-day ${levelClass}`;
-        dayDiv.title = `${new Date(item.date).toLocaleDateString('pt-BR')}: ${val}mm`;
-        dayDiv.innerHTML = new Date(item.date).getDate(); 
-        heatmapContainer.appendChild(dayDiv);
-    });
-
-    // --- 4. GRÁFICOS (Chart.js) ---
-
-    // Gráfico de Evolução (Barras + Linha)
-    const ctxCombo = document.getElementById('comboChart').getContext('2d');
-    new Chart(ctxCombo, {
+    // --- 4. GRÁFICOS ---
+    
+    // Combo Chart
+    new Chart(document.getElementById('comboChart'), {
         type: 'bar',
         data: {
             labels: chartLabels,
@@ -351,22 +397,19 @@
                 {
                     label: 'Chuva do Dia',
                     data: dailyValues,
-                    backgroundColor: 'rgba(13, 110, 253, 0.5)',
-                    borderColor: 'rgba(13, 110, 253, 1)',
-                    borderWidth: 1,
-                    borderRadius: 3,
+                    backgroundColor: '#0d6efd',
+                    borderRadius: 2,
                     order: 2,
                     yAxisID: 'y'
                 },
                 {
                     type: 'line',
-                    label: 'Acumulado Total',
+                    label: 'Acumulado',
                     data: accumulatedValues,
-                    borderColor: '#198754', // Verde
+                    borderColor: '#198754',
                     borderWidth: 2,
-                    tension: 0.4,
                     pointRadius: 0,
-                    fill: false,
+                    tension: 0.1,
                     order: 1,
                     yAxisID: 'y1'
                 }
@@ -375,22 +418,22 @@
         options: {
             responsive: true,
             interaction: { mode: 'index', intersect: false },
-            plugins: { legend: { position: 'top' } },
+            plugins: { legend: { display: true, position: 'top' } },
             scales: {
-                x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } },
-                y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Chuva (mm)' } },
-                y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Acumulado (mm)' } }
+                x: { display: false },
+                y: { display: true, position: 'left', title: { display: true, text: 'Chuva (mm)' } },
+                y1: { display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Acumulado' } }
             }
         }
     });
 
-    // Gráfico de Radar (Média Histórica)
+    // Radar Chart
     new Chart(document.getElementById('avgChart'), {
         type: 'radar',
         data: {
             labels: monthNames,
             datasets: [{
-                label: 'Média Histórica (mm)',
+                label: 'Média (mm)',
                 data: historicAverages,
                 backgroundColor: 'rgba(13, 110, 253, 0.2)',
                 borderColor: '#0d6efd',
@@ -402,13 +445,10 @@
         options: {
             responsive: true,
             plugins: { legend: { display: false } },
-            scales: {
-                r: { angleLines: { display: true }, suggestedMin: 0, ticks: { display: false } }
-            }
+            scales: { r: { angleLines: { display: true }, suggestedMin: 0, ticks: { display: false } } }
         }
     });
 
 </script>
-
 </body>
 </html>
