@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fazenda Cacimbas - Sistema Plúvio</title>
+    <title>Fazenda Cacimbas - Sistema Plúvio Pro</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -15,8 +15,11 @@
         :root {
             --primary-blue: #0d6efd;
             --success-green: #198754;
+            --warning-yellow: #ffc107;
+            --danger-red: #dc3545;
             --bg-light: #f0f2f5;
-            --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --glass-bg: rgba(255, 255, 255, 0.95);
         }
         
         * {
@@ -26,253 +29,416 @@
         }
         
         body {
-            background-color: var(--bg-light);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
         }
         
+        /* Header Moderno */
         .header-section {
-            background: linear-gradient(135deg, var(--primary-blue) 0%, #0a58ca 100%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 2rem 0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 1.5rem 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             margin-bottom: 2rem;
         }
         
         .logo-img {
-            width: 70px;
-            height: 70px;
-            margin-right: 1.2rem;
+            width: 60px;
+            height: 60px;
+            margin-right: 1rem;
             filter: brightness(0) invert(1);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         
         .header-title {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 700;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
         
-        .header-date {
-            font-size: 0.95rem;
-            opacity: 0.9;
-        }
-        
-        .kpi-card {
-            background: white;
-            border-radius: 12px;
+        /* Cards com Glassmorphism */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
             padding: 1.5rem;
             box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             transition: all 0.3s ease;
-            border-left: 5px solid var(--primary-blue);
-            height: 100%;
         }
         
-        .kpi-card:hover {
+        .glass-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
         }
         
-        .kpi-card.current-season {
-            border-left-color: var(--success-green);
-            background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%);
+        /* KPIs Melhorados */
+        .kpi-card {
+            position: relative;
+            overflow: hidden;
         }
         
-        .kpi-card.current-season .kpi-badge {
-            background: var(--success-green);
-            color: white;
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--primary-blue), #0a58ca);
+        }
+        
+        .kpi-card.current-season::before {
+            background: linear-gradient(180deg, var(--success-green), #146c43);
+        }
+        
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
         }
         
         .kpi-value {
-            font-size: 2.8rem;
-            font-weight: bold;
-            color: var(--primary-blue);
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-blue), #0a58ca);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin: 0.5rem 0;
-            line-height: 1;
         }
         
         .kpi-card.current-season .kpi-value {
+            background: linear-gradient(135deg, var(--success-green), #146c43);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .kpi-trend {
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .trend-up {
+            background: rgba(25, 135, 84, 0.1);
             color: var(--success-green);
         }
         
-        .kpi-label {
-            font-size: 0.9rem;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
+        .trend-down {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger-red);
         }
         
-        .kpi-stats {
-            margin-top: 0.8rem;
-            font-size: 0.85rem;
+        .trend-neutral {
+            background: rgba(108, 117, 125, 0.1);
             color: #6c757d;
         }
         
-        .chart-container {
-            background: white;
-            border-radius: 12px;
-            padding: 1.8rem;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 2rem;
-        }
-        
-        .chart-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 1.2rem;
-            padding-bottom: 0.8rem;
-            border-bottom: 3px solid var(--bg-light);
-            display: flex;
-            align-items: center;
-        }
-        
-        .chart-title i {
-            margin-right: 0.6rem;
-            color: var(--primary-blue);
-        }
-        
-        .table-container {
-            background: white;
-            border-radius: 12px;
-            padding: 1.8rem;
-            box-shadow: var(--card-shadow);
-            max-height: 600px;
-            overflow-y: auto;
-        }
-        
-        .table-container::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        .table-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        
-        .table-container::-webkit-scrollbar-thumb {
-            background: var(--primary-blue);
-            border-radius: 10px;
-        }
-        
-        .high-rain {
-            color: var(--primary-blue);
-            font-weight: bold;
-            font-size: 1.05rem;
-        }
-        
-        .heatmap-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1.2rem;
-        }
-        
-        .month-block {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 1rem;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .month-title {
-            font-weight: 700;
-            font-size: 0.95rem;
-            margin-bottom: 0.8rem;
-            color: #495057;
-            text-align: center;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #dee2e6;
-        }
-        
-        .day-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-        }
-        
-        .day-cell {
-            aspect-ratio: 1;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* Dashboard Executivo */
+        .executive-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .insight-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 1rem;
+        }
+        
+        .insight-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Alertas */
+        .alert-box {
+            border-left: 4px solid;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .alert-success {
+            background: rgba(25, 135, 84, 0.1);
+            border-left-color: var(--success-green);
+            color: var(--success-green);
+        }
+        
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-left-color: var(--warning-yellow);
+            color: #997404;
+        }
+        
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.1);
+            border-left-color: var(--danger-red);
+            color: var(--danger-red);
+        }
+        
+        /* Filtros Interativos */
+        .filter-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .filter-btn {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            background: white;
+            margin: 0.3rem;
+            cursor: pointer;
+            transition: all 0.3s;
             font-weight: 600;
+        }
+        
+        .filter-btn:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+        
+        .filter-btn.active {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+        
+        /* Mapa de Calor Estilo GitHub */
+        .heatmap-github {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            overflow-x: auto;
+        }
+        
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(53, 1fr);
+            gap: 3px;
+            margin-top: 1rem;
+        }
+        
+        .heatmap-cell {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            background: #ebedf0;
             cursor: pointer;
             transition: all 0.2s;
-            position: relative;
         }
         
-        .day-cell:hover {
-            transform: scale(1.3);
+        .heatmap-cell:hover {
+            transform: scale(1.5);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             z-index: 10;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
         
-        .day-cell::after {
-            content: attr(data-value);
+        .heatmap-cell[data-level="0"] { background: #ebedf0; }
+        .heatmap-cell[data-level="1"] { background: #9be9a8; }
+        .heatmap-cell[data-level="2"] { background: #40c463; }
+        .heatmap-cell[data-level="3"] { background: #30a14e; }
+        .heatmap-cell[data-level="4"] { background: #216e39; }
+        
+        /* Comparativo de Safras */
+        .comparison-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .comparison-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .comparison-card::before {
+            content: '';
             position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--success-green));
+        }
+        
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            margin: 1rem auto;
+        }
+        
+        /* Estatísticas Avançadas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(13, 110, 253, 0.05);
+            border-radius: 10px;
+            border: 2px solid rgba(13, 110, 253, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 0.3rem;
+        }
+        
+        /* Tabela Melhorada */
+        .table-modern {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .table-modern thead th {
+            background: linear-gradient(135deg, var(--primary-blue), #0a58ca);
             color: white;
-            padding: 0.3rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s;
-            margin-bottom: 5px;
+            font-weight: 600;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
-        .day-cell:hover::after {
-            opacity: 1;
+        .table-modern tbody tr {
+            transition: all 0.2s;
         }
         
-        .footer {
-            background: white;
-            padding: 2rem 0;
-            margin-top: 3rem;
-            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+        .table-modern tbody tr:hover {
+            background: rgba(13, 110, 253, 0.05);
+            transform: scale(1.01);
         }
         
+        /* Responsive */
         @media (max-width: 768px) {
             .header-title {
-                font-size: 1.5rem;
-            }
-            
-            .logo-img {
-                width: 50px;
-                height: 50px;
+                font-size: 1.3rem;
             }
             
             .kpi-value {
                 font-size: 2rem;
             }
             
-            .chart-container {
-                padding: 1rem;
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
             }
             
-            .heatmap-container {
+            .comparison-container {
                 grid-template-columns: 1fr;
             }
         }
         
-        @media (max-width: 576px) {
-            .header-section {
-                padding: 1.5rem 0;
+        /* Animações */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
             }
-            
-            .chart-title {
-                font-size: 1.1rem;
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        /* Loading State */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Chart Container */
+        .chart-container-wrapper {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid var(--bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .chart-title i {
+            color: var(--primary-blue);
+            margin-right: 0.6rem;
+        }
+        
+        .chart-info {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 400;
         }
     </style>
 </head>
@@ -284,83 +450,148 @@
                 <div class="d-flex align-items-center">
                     <img src="https://cdn-icons-png.flaticon.com/512/2830/2830227.png" alt="Logo" class="logo-img">
                     <div>
-                        <h1 class="header-title mb-0">Fazenda Cacimbas - Sistema Plúvio</h1>
-                        <p class="header-date mb-0" id="currentDate"></p>
+                        <h1 class="header-title">Fazenda Cacimbas - Sistema Plúvio Pro</h1>
+                        <p class="mb-0 opacity-75" id="currentDate" style="font-size: 0.9rem;"></p>
                     </div>
                 </div>
-                <div class="text-end d-none d-md-block">
-                    <i class="fas fa-cloud-rain fa-3x"></i>
+                <div class="text-end">
+                    <i class="fas fa-cloud-showers-heavy fa-3x opacity-75"></i>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="container pb-5">
-        <!-- KPIs -->
-        <div class="row mb-4" id="kpiContainer">
-            <!-- KPIs serão gerados dinamicamente -->
+        <!-- Dashboard Executivo -->
+        <div class="executive-summary fade-in-up">
+            <h2 class="mb-3"><i class="fas fa-brain me-2"></i>Resumo Executivo - Análise Inteligente</h2>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="insight-card">
+                        <div class="insight-icon">📊</div>
+                        <h5 id="statusSafra">Calculando...</h5>
+                        <p class="mb-0 small" id="statusDesc"></p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="insight-card">
+                        <div class="insight-icon">⚡</div>
+                        <h5 id="ultimaChuva">Calculando...</h5>
+                        <p class="mb-0 small" id="ultimaChuvaDesc"></p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="insight-card">
+                        <div class="insight-icon">🎯</div>
+                        <h5 id="projecao">Calculando...</h5>
+                        <p class="mb-0 small" id="projecaoDesc"></p>
+                    </div>
+                </div>
+            </div>
+            <div id="alertasContainer"></div>
         </div>
 
-        <!-- Gráfico Combinado -->
-        <div class="chart-container">
+        <!-- Filtros -->
+        <div class="filter-section">
+            <h5 class="mb-3"><i class="fas fa-filter me-2"></i>Filtrar Visualização</h5>
+            <div class="d-flex flex-wrap">
+                <button class="filter-btn active" data-filter="all">Todos os Invernos</button>
+                <button class="filter-btn" data-filter="2024">Inverno 2024</button>
+                <button class="filter-btn" data-filter="2025">Inverno 2025</button>
+                <button class="filter-btn" data-filter="2026">Inverno 2026</button>
+                <button class="filter-btn" data-filter="compare">Comparar Safras</button>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="row mb-4" id="kpiContainer">
+            <!-- KPIs gerados dinamicamente -->
+        </div>
+
+        <!-- Comparativo de Safras -->
+        <div class="glass-card mb-4" id="comparativoSection" style="display: none;">
             <h3 class="chart-title">
-                <i class="fas fa-chart-line"></i>
-                Evolução Diária e Acumulado Total
+                <span><i class="fas fa-balance-scale"></i>Comparativo Entre Safras</span>
             </h3>
-            <canvas id="combinedChart"></canvas>
+            <div class="comparison-container" id="comparisonContainer"></div>
+        </div>
+
+        <!-- Estatísticas Avançadas -->
+        <div class="glass-card mb-4">
+            <h3 class="chart-title">
+                <span><i class="fas fa-chart-pie"></i>Estatísticas Detalhadas - Inverno Atual</span>
+            </h3>
+            <div class="stats-grid" id="statsContainer"></div>
+        </div>
+
+        <!-- Gráfico Comparativo Multi-Safra -->
+        <div class="chart-container-wrapper">
+            <h3 class="chart-title">
+                <span><i class="fas fa-chart-line"></i>Evolução Comparativa - Todas as Safras</span>
+                <span class="chart-info">Acumulado por dia desde início</span>
+            </h3>
+            <canvas id="multiSeasonChart"></canvas>
+        </div>
+
+        <!-- Gráfico de Distribuição -->
+        <div class="chart-container-wrapper">
+            <h3 class="chart-title">
+                <span><i class="fas fa-chart-bar"></i>Distribuição de Intensidade</span>
+                <span class="chart-info">Frequência por faixa de precipitação</span>
+            </h3>
+            <canvas id="distributionChart"></canvas>
         </div>
 
         <div class="row">
-            <!-- Radar Chart -->
+            <!-- Análise de Intervalos -->
             <div class="col-lg-6 mb-4">
-                <div class="chart-container">
+                <div class="chart-container-wrapper">
                     <h3 class="chart-title">
-                        <i class="fas fa-chart-area"></i>
-                        Padrão Mensal (Média Histórica)
+                        <span><i class="fas fa-clock"></i>Intervalos entre Chuvas</span>
+                    </h3>
+                    <canvas id="intervalsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Radar Comparativo -->
+            <div class="col-lg-6 mb-4">
+                <div class="chart-container-wrapper">
+                    <h3 class="chart-title">
+                        <span><i class="fas fa-chart-area"></i>Padrão Mensal Comparativo</span>
                     </h3>
                     <canvas id="radarChart"></canvas>
                 </div>
             </div>
-
-            <!-- Tabela -->
-            <div class="col-lg-6 mb-4">
-                <div class="table-container">
-                    <h3 class="chart-title">
-                        <i class="fas fa-table"></i>
-                        Registros Recentes
-                    </h3>
-                    <table class="table table-hover table-sm">
-                        <thead class="table-light sticky-top">
-                            <tr>
-                                <th>Data</th>
-                                <th>Chuva (mm)</th>
-                                <th>Temporada</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                            <!-- Dados serão inseridos aqui -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </div>
 
-        <!-- Mapa de Calor -->
-        <div class="chart-container">
+        <!-- Mapa de Calor Estilo GitHub -->
+        <div class="glass-card mb-4">
             <h3 class="chart-title">
-                <i class="fas fa-calendar"></i>
-                Mapa de Calor - Distribuição Mensal de Chuvas
+                <span><i class="fas fa-calendar-alt"></i>Calendário de Chuvas - Últimos 12 Meses</span>
             </h3>
-            <div class="heatmap-container" id="heatmapContainer">
-                <!-- Mapa de calor será gerado aqui -->
-            </div>
+            <div class="heatmap-github" id="githubHeatmap"></div>
         </div>
-    </div>
 
-    <div class="footer">
-        <div class="container text-center text-muted">
-            <p class="mb-1"><i class="fas fa-tint me-2"></i>Sistema de Monitoramento Pluviométrico</p>
-            <p class="mb-0">© 2026 Fazenda Cacimbas - Desenvolvido com <i class="fas fa-heart text-danger"></i> para o Agronegócio</p>
+        <!-- Tabela Detalhada -->
+        <div class="glass-card">
+            <h3 class="chart-title">
+                <span><i class="fas fa-table"></i>Registro Completo</span>
+                <span class="chart-info"><span id="recordCount">0</span> eventos registrados</span>
+            </h3>
+            <div style="max-height: 600px; overflow-y: auto;">
+                <table class="table table-modern table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Precipitação</th>
+                            <th>Intensidade</th>
+                            <th>Temporada</th>
+                            <th>Intervalo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -434,7 +665,7 @@
             { date: '2025-05-10', value: 10, season: '2025' },
             { date: '2025-05-21', value: 9, season: '2025' },
             
-            // INVERNO 2026 (Atual)
+            // INVERNO 2026
             { date: '2025-10-21', value: 20, season: '2026' },
             { date: '2025-12-22', value: 55, season: '2026' },
             { date: '2025-12-23', value: 18, season: '2026' },
@@ -445,22 +676,16 @@
             { date: '2026-02-07', value: 8, season: '2026' }
         ];
 
-        // ===== CONFIGURAÇÃO INICIAL =====
+        // ===== PROCESSAMENTO DE DADOS =====
         const mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-        const mesesNomesCompletos = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
-                                     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         
-        // Transformar dados brutos
         const dadosChuva = rawData.map(item => ({
             data: item.date,
             chuva_mm: item.value,
-            temporada: `Inverno ${item.season}`
-        }));
+            temporada: `Inverno ${item.season}`,
+            season: item.season
+        })).sort((a, b) => new Date(b.data) - new Date(a.data));
         
-        // Ordenar por data (mais recente primeiro)
-        dadosChuva.sort((a, b) => new Date(b.data) - new Date(a.data));
-        
-        // Atualizar data atual
         const hoje = new Date();
         document.getElementById('currentDate').textContent = hoje.toLocaleDateString('pt-BR', {
             weekday: 'long',
@@ -469,48 +694,200 @@
             day: 'numeric'
         });
 
-        // ===== PROCESSAMENTO DE DADOS =====
-        
-        // Calcular totais por temporada
-        const totaisPorTemporada = {};
-        const contagemPorTemporada = {};
-        
+        // Calcular estatísticas por temporada
+        const estatisticas = {};
         dadosChuva.forEach(item => {
-            if (!totaisPorTemporada[item.temporada]) {
-                totaisPorTemporada[item.temporada] = 0;
-                contagemPorTemporada[item.temporada] = 0;
+            if (!estatisticas[item.temporada]) {
+                estatisticas[item.temporada] = {
+                    total: 0,
+                    count: 0,
+                    max: 0,
+                    min: Infinity,
+                    valores: [],
+                    datas: []
+                };
             }
-            totaisPorTemporada[item.temporada] += item.chuva_mm;
-            contagemPorTemporada[item.temporada]++;
+            const stat = estatisticas[item.temporada];
+            stat.total += item.chuva_mm;
+            stat.count++;
+            stat.max = Math.max(stat.max, item.chuva_mm);
+            stat.min = Math.min(stat.min, item.chuva_mm);
+            stat.valores.push(item.chuva_mm);
+            stat.datas.push(new Date(item.data));
         });
 
-        // Identificar temporada atual (mais recente)
+        // Calcular média, mediana, desvio padrão
+        Object.keys(estatisticas).forEach(temp => {
+            const stat = estatisticas[temp];
+            stat.media = stat.total / stat.count;
+            
+            stat.valores.sort((a, b) => a - b);
+            stat.mediana = stat.count % 2 === 0 
+                ? (stat.valores[stat.count/2 - 1] + stat.valores[stat.count/2]) / 2
+                : stat.valores[Math.floor(stat.count/2)];
+            
+            const variancia = stat.valores.reduce((acc, val) => acc + Math.pow(val - stat.media, 2), 0) / stat.count;
+            stat.desvioPadrao = Math.sqrt(variancia);
+            
+            // Calcular intervalos entre chuvas
+            stat.intervalos = [];
+            for (let i = 0; i < stat.datas.length - 1; i++) {
+                const diff = Math.abs(stat.datas[i] - stat.datas[i + 1]);
+                stat.intervalos.push(Math.floor(diff / (1000 * 60 * 60 * 24)));
+            }
+            stat.intervaloMedio = stat.intervalos.length > 0 
+                ? stat.intervalos.reduce((a, b) => a + b, 0) / stat.intervalos.length 
+                : 0;
+        });
+
         const temporadaAtual = dadosChuva[0].temporada;
 
-        // ===== GERAR KPIs =====
+        // ===== DASHBOARD EXECUTIVO =====
+        function gerarDashboardExecutivo() {
+            const statAtual = estatisticas[temporadaAtual];
+            const ultimaData = new Date(dadosChuva[0].data);
+            const diasDesdeUltima = Math.floor((hoje - ultimaData) / (1000 * 60 * 60 * 24));
+            
+            // Status da Safra
+            const temporadas = Object.keys(estatisticas).sort();
+            const indiceAtual = temporadas.indexOf(temporadaAtual);
+            let statusTexto, statusDesc, statusClass;
+            
+            if (indiceAtual > 0) {
+                const tempAnterior = temporadas[indiceAtual - 1];
+                const percDif = ((statAtual.total - estatisticas[tempAnterior].total) / estatisticas[tempAnterior].total) * 100;
+                
+                if (percDif > 10) {
+                    statusTexto = `+${percDif.toFixed(0)}% Acima`;
+                    statusDesc = `${percDif.toFixed(1)}% superior ao inverno anterior`;
+                    statusClass = 'success';
+                } else if (percDif < -10) {
+                    statusTexto = `${percDif.toFixed(0)}% Abaixo`;
+                    statusDesc = `Atenção: ${Math.abs(percDif).toFixed(1)}% inferior ao inverno anterior`;
+                    statusClass = 'warning';
+                } else {
+                    statusTexto = 'Dentro da Média';
+                    statusDesc = 'Precipitação similar ao inverno anterior';
+                    statusClass = 'neutral';
+                }
+            } else {
+                statusTexto = 'Primeira Safra';
+                statusDesc = 'Sem histórico para comparação';
+                statusClass = 'neutral';
+            }
+            
+            document.getElementById('statusSafra').textContent = statusTexto;
+            document.getElementById('statusDesc').textContent = statusDesc;
+            
+            // Última Chuva
+            document.getElementById('ultimaChuva').textContent = `Há ${diasDesdeUltima} dias`;
+            document.getElementById('ultimaChuvaDesc').textContent = `Última: ${dadosChuva[0].chuva_mm}mm em ${ultimaData.toLocaleDateString('pt-BR')}`;
+            
+            // Projeção
+            const diasDecorridos = Math.floor((hoje - new Date(dadosChuva[dadosChuva.length - 1].data)) / (1000 * 60 * 60 * 24));
+            const taxaDiaria = statAtual.total / Math.max(diasDecorridos, 1);
+            const projecao180 = taxaDiaria * 180;
+            
+            document.getElementById('projecao').textContent = `${projecao180.toFixed(0)}mm`;
+            document.getElementById('projecaoDesc').textContent = `Projeção para 180 dias (${taxaDiaria.toFixed(2)}mm/dia)`;
+            
+            // Alertas
+            const alertasContainer = document.getElementById('alertasContainer');
+            alertasContainer.innerHTML = '';
+            
+            // Alerta de estiagem
+            if (diasDesdeUltima > 15) {
+                alertasContainer.innerHTML += `
+                    <div class="alert-box alert-warning">
+                        <i class="fas fa-exclamation-triangle me-3" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <strong>Alerta de Estiagem:</strong> ${diasDesdeUltima} dias sem precipitação significativa
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Alerta de chuva forte recente
+            if (dadosChuva[0].chuva_mm > 50 && diasDesdeUltima <= 3) {
+                alertasContainer.innerHTML += `
+                    <div class="alert-box alert-success">
+                        <i class="fas fa-check-circle me-3" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <strong>Chuva Significativa:</strong> ${dadosChuva[0].chuva_mm}mm registrados recentemente
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Alerta de performance vs média
+            const mediaHistorica = Object.values(estatisticas).reduce((acc, s) => acc + s.media, 0) / Object.keys(estatisticas).length;
+            if (statAtual.media < mediaHistorica * 0.7) {
+                alertasContainer.innerHTML += `
+                    <div class="alert-box alert-danger">
+                        <i class="fas fa-times-circle me-3" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <strong>Performance Baixa:</strong> Média atual ${statAtual.media.toFixed(1)}mm está ${((1 - statAtual.media/mediaHistorica) * 100).toFixed(0)}% abaixo do histórico
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // ===== KPIs =====
         function gerarKPIs() {
             const container = document.getElementById('kpiContainer');
-            const temporadas = Object.keys(totaisPorTemporada).sort().reverse();
+            container.innerHTML = '';
+            const temporadas = Object.keys(estatisticas).sort().reverse();
             
-            temporadas.forEach(temporada => {
-                const isCurrentSeason = temporada === temporadaAtual;
-                const total = totaisPorTemporada[temporada];
-                const registros = contagemPorTemporada[temporada];
-                const media = total / registros;
+            temporadas.forEach((temp, idx) => {
+                const stat = estatisticas[temp];
+                const isAtual = temp === temporadaAtual;
+                
+                let trendClass = 'trend-neutral';
+                let trendIcon = 'fa-minus';
+                let trendText = 'N/A';
+                
+                if (idx < temporadas.length - 1) {
+                    const anterior = estatisticas[temporadas[idx + 1]];
+                    const diff = ((stat.total - anterior.total) / anterior.total) * 100;
+                    if (diff > 5) {
+                        trendClass = 'trend-up';
+                        trendIcon = 'fa-arrow-up';
+                        trendText = `+${diff.toFixed(0)}%`;
+                    } else if (diff < -5) {
+                        trendClass = 'trend-down';
+                        trendIcon = 'fa-arrow-down';
+                        trendText = `${diff.toFixed(0)}%`;
+                    } else {
+                        trendText = `${diff > 0 ? '+' : ''}${diff.toFixed(0)}%`;
+                    }
+                }
                 
                 const col = document.createElement('div');
-                col.className = 'col-md-6 col-lg-4 mb-3';
+                col.className = 'col-md-6 col-lg-4 mb-3 fade-in-up';
+                col.style.animationDelay = `${idx * 0.1}s`;
                 
                 col.innerHTML = `
-                    <div class="kpi-card ${isCurrentSeason ? 'current-season' : ''}">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div class="kpi-label">${temporada}</div>
-                            ${isCurrentSeason ? '<span class="kpi-badge"><i class="fas fa-star me-1"></i>ATUAL</span>' : ''}
+                    <div class="glass-card kpi-card ${isAtual ? 'current-season' : ''}">
+                        <div class="kpi-header">
+                            <div class="kpi-label">
+                                ${temp}
+                                ${isAtual ? '<i class="fas fa-star ms-2" style="color: var(--success-green);"></i>' : ''}
+                            </div>
+                            <span class="kpi-trend ${trendClass}">
+                                <i class="fas ${trendIcon} me-1"></i>${trendText}
+                            </span>
                         </div>
-                        <div class="kpi-value">${total.toFixed(0)} <small style="font-size: 1.2rem; font-weight: 500;">mm</small></div>
-                        <div class="kpi-stats">
-                            <i class="fas fa-droplet me-1"></i>${registros} eventos | 
-                            <i class="fas fa-chart-bar me-1"></i>Média: ${media.toFixed(1)}mm
+                        <div class="kpi-value">${stat.total.toFixed(0)} <small style="font-size: 1rem;">mm</small></div>
+                        <div class="text-muted small">
+                            <div class="mb-1">
+                                <i class="fas fa-chart-bar me-2"></i>Média: <strong>${stat.media.toFixed(1)}mm</strong> | 
+                                Máx: <strong>${stat.max}mm</strong>
+                            </div>
+                            <div>
+                                <i class="fas fa-droplet me-2"></i><strong>${stat.count}</strong> eventos | 
+                                Intervalo: <strong>${stat.intervaloMedio.toFixed(0)}</strong> dias
+                            </div>
                         </div>
                     </div>
                 `;
@@ -519,132 +896,103 @@
             });
         }
 
-        // ===== GRÁFICO COMBINADO (BARRAS + LINHA) =====
-        function criarGraficoCombinado() {
-            const ctx = document.getElementById('combinedChart').getContext('2d');
+        // ===== ESTATÍSTICAS DETALHADAS =====
+        function gerarEstatisticas() {
+            const container = document.getElementById('statsContainer');
+            const stat = estatisticas[temporadaAtual];
             
-            // Preparar dados para o gráfico (ordem cronológica, últimos 60 registros)
-            const dados = [...dadosChuva].reverse().slice(-60);
-            const labels = dados.map(d => {
-                const date = new Date(d.data);
-                return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
-            });
-            const chuvas = dados.map(d => d.chuva_mm);
+            const stats = [
+                { label: 'Total Acumulado', value: `${stat.total.toFixed(0)}mm`, icon: 'fa-tint' },
+                { label: 'Média por Evento', value: `${stat.media.toFixed(1)}mm`, icon: 'fa-chart-line' },
+                { label: 'Mediana', value: `${stat.mediana.toFixed(1)}mm`, icon: 'fa-chart-bar' },
+                { label: 'Desvio Padrão', value: `${stat.desvioPadrao.toFixed(1)}mm`, icon: 'fa-wave-square' },
+                { label: 'Máximo', value: `${stat.max}mm`, icon: 'fa-arrow-up' },
+                { label: 'Mínimo', value: `${stat.min}mm`, icon: 'fa-arrow-down' },
+                { label: 'Total de Eventos', value: stat.count, icon: 'fa-calendar-check' },
+                { label: 'Intervalo Médio', value: `${stat.intervaloMedio.toFixed(0)} dias`, icon: 'fa-clock' }
+            ];
             
-            // Calcular acumulado
-            let acumulado = 0;
-            const acumulados = chuvas.map(val => {
-                acumulado += val;
-                return acumulado;
+            container.innerHTML = stats.map(s => `
+                <div class="stat-item fade-in-up">
+                    <i class="fas ${s.icon} mb-2" style="font-size: 1.5rem; color: var(--primary-blue);"></i>
+                    <div class="stat-value">${s.value}</div>
+                    <div class="stat-label">${s.label}</div>
+                </div>
+            `).join('');
+        }
+
+        // ===== GRÁFICO MULTI-SAFRA =====
+        function criarGraficoMultiSafra() {
+            const ctx = document.getElementById('multiSeasonChart').getContext('2d');
+            
+            const datasets = [];
+            const cores = [
+                { bg: 'rgba(255, 99, 132, 0.2)', border: 'rgba(255, 99, 132, 1)' },
+                { bg: 'rgba(54, 162, 235, 0.2)', border: 'rgba(54, 162, 235, 1)' },
+                { bg: 'rgba(75, 192, 192, 0.2)', border: 'rgba(75, 192, 192, 1)' }
+            ];
+            
+            Object.keys(estatisticas).sort().forEach((temp, idx) => {
+                const dados = dadosChuva
+                    .filter(d => d.temporada === temp)
+                    .sort((a, b) => new Date(a.data) - new Date(b.data));
+                
+                let acumulado = 0;
+                const acumulados = dados.map(d => {
+                    acumulado += d.chuva_mm;
+                    return acumulado;
+                });
+                
+                datasets.push({
+                    label: temp,
+                    data: acumulados,
+                    borderColor: cores[idx % cores.length].border,
+                    backgroundColor: cores[idx % cores.length].bg,
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 4,
+                    pointHoverRadius: 7
+                });
             });
             
             new Chart(ctx, {
-                type: 'bar',
+                type: 'line',
                 data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            type: 'bar',
-                            label: 'Chuva do Dia (mm)',
-                            data: chuvas,
-                            backgroundColor: 'rgba(13, 110, 253, 0.7)',
-                            borderColor: 'rgba(13, 110, 253, 1)',
-                            borderWidth: 1,
-                            yAxisID: 'y'
-                        },
-                        {
-                            type: 'line',
-                            label: 'Acumulado Total (mm)',
-                            data: acumulados,
-                            borderColor: 'rgba(25, 135, 84, 1)',
-                            backgroundColor: 'rgba(25, 135, 84, 0.1)',
-                            borderWidth: 3,
-                            tension: 0.4,
-                            yAxisID: 'y1',
-                            fill: true,
-                            pointRadius: 3,
-                            pointHoverRadius: 6
-                        }
-                    ]
+                    labels: Array.from({length: Math.max(...datasets.map(d => d.data.length))}, (_, i) => `Evento ${i + 1}`),
+                    datasets: datasets
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    },
                     plugins: {
                         legend: {
                             position: 'top',
                             labels: {
-                                font: {
-                                    size: 13,
-                                    weight: '600'
-                                },
+                                font: { size: 13, weight: '600' },
                                 padding: 15
                             }
                         },
                         tooltip: {
+                            mode: 'index',
+                            intersect: false,
                             backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 12,
-                            titleFont: {
-                                size: 14,
-                                weight: 'bold'
-                            },
-                            bodyFont: {
-                                size: 13
-                            },
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + ' mm';
-                                }
-                            }
+                            padding: 12
                         }
                     },
                     scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                font: {
-                                    size: 10
-                                },
-                                maxRotation: 45,
-                                minRotation: 45
-                            }
-                        },
                         y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: {
-                                display: true,
-                                text: 'Chuva Diária (mm)',
-                                font: {
-                                    size: 12,
-                                    weight: 'bold'
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            }
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
+                            beginAtZero: true,
                             title: {
                                 display: true,
                                 text: 'Acumulado (mm)',
-                                font: {
-                                    size: 12,
-                                    weight: 'bold'
-                                }
-                            },
-                            grid: {
-                                drawOnChartArea: false
+                                font: { size: 12, weight: 'bold' }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Sequência de Eventos',
+                                font: { size: 12, weight: 'bold' }
                             }
                         }
                     }
@@ -652,62 +1000,179 @@
             });
         }
 
-        // ===== GRÁFICO RADAR (PADRÃO MENSAL) =====
+        // ===== GRÁFICO DE DISTRIBUIÇÃO =====
+        function criarGraficoDistribuicao() {
+            const ctx = document.getElementById('distributionChart').getContext('2d');
+            
+            const faixas = [
+                { label: '0-10mm', min: 0, max: 10, count: 0 },
+                { label: '11-20mm', min: 11, max: 20, count: 0 },
+                { label: '21-30mm', min: 21, max: 30, count: 0 },
+                { label: '31-50mm', min: 31, max: 50, count: 0 },
+                { label: '51-100mm', min: 51, max: 100, count: 0 },
+                { label: '>100mm', min: 101, max: Infinity, count: 0 }
+            ];
+            
+            dadosChuva.forEach(d => {
+                for (let faixa of faixas) {
+                    if (d.chuva_mm >= faixa.min && d.chuva_mm <= faixa.max) {
+                        faixa.count++;
+                        break;
+                    }
+                }
+            });
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: faixas.map(f => f.label),
+                    datasets: [{
+                        label: 'Frequência de Eventos',
+                        data: faixas.map(f => f.count),
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(153, 102, 255, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(153, 102, 255, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            callbacks: {
+                                label: (context) => `${context.parsed.y} evento${context.parsed.y !== 1 ? 's' : ''}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 },
+                            title: {
+                                display: true,
+                                text: 'Número de Eventos',
+                                font: { size: 12, weight: 'bold' }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Faixa de Precipitação',
+                                font: { size: 12, weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ===== GRÁFICO DE INTERVALOS =====
+        function criarGraficoIntervalos() {
+            const ctx = document.getElementById('intervalsChart').getContext('2d');
+            const stat = estatisticas[temporadaAtual];
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: stat.intervalos.map((_, i) => `Int. ${i + 1}`),
+                    datasets: [{
+                        label: 'Dias entre Chuvas',
+                        data: stat.intervalos,
+                        backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                        borderColor: 'rgba(13, 110, 253, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: { size: 13, weight: '600' }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Dias',
+                                font: { size: 12, weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ===== RADAR COMPARATIVO =====
         function criarRadarChart() {
             const ctx = document.getElementById('radarChart').getContext('2d');
             
-            // Calcular média por mês (todos os anos)
-            const mediaPorMes = Array(12).fill(0);
-            const contagemPorMes = Array(12).fill(0);
+            const datasets = [];
+            const cores = [
+                { bg: 'rgba(255, 99, 132, 0.2)', border: 'rgba(255, 99, 132, 1)' },
+                { bg: 'rgba(54, 162, 235, 0.2)', border: 'rgba(54, 162, 235, 1)' },
+                { bg: 'rgba(75, 192, 192, 0.2)', border: 'rgba(75, 192, 192, 1)' }
+            ];
             
-            dadosChuva.forEach(item => {
-                const mes = new Date(item.data).getMonth();
-                mediaPorMes[mes] += item.chuva_mm;
-                contagemPorMes[mes]++;
+            Object.keys(estatisticas).sort().forEach((temp, idx) => {
+                const mediaPorMes = Array(12).fill(0);
+                const contagemPorMes = Array(12).fill(0);
+                
+                dadosChuva
+                    .filter(d => d.temporada === temp)
+                    .forEach(item => {
+                        const mes = new Date(item.data).getMonth();
+                        mediaPorMes[mes] += item.chuva_mm;
+                        contagemPorMes[mes]++;
+                    });
+                
+                const medias = mediaPorMes.map((total, idx) => 
+                    contagemPorMes[idx] > 0 ? total / contagemPorMes[idx] : 0
+                );
+                
+                datasets.push({
+                    label: temp,
+                    data: medias,
+                    backgroundColor: cores[idx % cores.length].bg,
+                    borderColor: cores[idx % cores.length].border,
+                    borderWidth: 2,
+                    pointRadius: 4
+                });
             });
-            
-            const medias = mediaPorMes.map((total, idx) => 
-                contagemPorMes[idx] > 0 ? total / contagemPorMes[idx] : 0
-            );
             
             new Chart(ctx, {
                 type: 'radar',
                 data: {
                     labels: mesesNomes,
-                    datasets: [{
-                        label: 'Média Histórica (mm)',
-                        data: medias,
-                        backgroundColor: 'rgba(13, 110, 253, 0.2)',
-                        borderColor: 'rgba(13, 110, 253, 1)',
-                        borderWidth: 2,
-                        pointBackgroundColor: 'rgba(13, 110, 253, 1)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgba(13, 110, 253, 1)',
-                        pointRadius: 4,
-                        pointHoverRadius: 7
-                    }]
+                    datasets: datasets
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
                     plugins: {
                         legend: {
                             position: 'top',
                             labels: {
-                                font: {
-                                    size: 13,
-                                    weight: '600'
-                                }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 12,
-                            callbacks: {
-                                label: function(context) {
-                                    return 'Média: ' + context.parsed.r.toFixed(1) + ' mm';
-                                }
+                                font: { size: 13, weight: '600' }
                             }
                         }
                     },
@@ -716,18 +1181,7 @@
                             beginAtZero: true,
                             ticks: {
                                 stepSize: 20,
-                                callback: function(value) {
-                                    return value + 'mm';
-                                },
-                                font: {
-                                    size: 11
-                                }
-                            },
-                            pointLabels: {
-                                font: {
-                                    size: 12,
-                                    weight: '600'
-                                }
+                                callback: (value) => value + 'mm'
                             }
                         }
                     }
@@ -735,114 +1189,180 @@
             });
         }
 
-        // ===== TABELA DE REGISTROS =====
+        // ===== MAPA DE CALOR GITHUB =====
+        function criarMapaCalorGitHub() {
+            const container = document.getElementById('githubHeatmap');
+            
+            // Últimos 365 dias
+            const hoje = new Date();
+            const umAnoAtras = new Date(hoje.getTime() - (365 * 24 * 60 * 60 * 1000));
+            
+            // Criar objeto com todas as datas
+            const dadosPorDia = {};
+            let dataAtual = new Date(umAnoAtras);
+            while (dataAtual <= hoje) {
+                const key = dataAtual.toISOString().split('T')[0];
+                dadosPorDia[key] = 0;
+                dataAtual.setDate(dataAtual.getDate() + 1);
+            }
+            
+            // Preencher com dados reais
+            dadosChuva.forEach(d => {
+                if (dadosPorDia[d.data] !== undefined) {
+                    dadosPorDia[d.data] = d.chuva_mm;
+                }
+            });
+            
+            // Determinar níveis (0-4 baseado em percentis)
+            const valores = Object.values(dadosPorDia).filter(v => v > 0);
+            valores.sort((a, b) => a - b);
+            const p25 = valores[Math.floor(valores.length * 0.25)] || 10;
+            const p50 = valores[Math.floor(valores.length * 0.50)] || 25;
+            const p75 = valores[Math.floor(valores.length * 0.75)] || 50;
+            
+            function getNivel(valor) {
+                if (valor === 0) return 0;
+                if (valor < p25) return 1;
+                if (valor < p50) return 2;
+                if (valor < p75) return 3;
+                return 4;
+            }
+            
+            const html = `
+                <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+                    <span class="small text-muted">Menos</span>
+                    <div class="heatmap-cell" data-level="0" style="width: 15px; height: 15px;"></div>
+                    <div class="heatmap-cell" data-level="1" style="width: 15px; height: 15px;"></div>
+                    <div class="heatmap-cell" data-level="2" style="width: 15px; height: 15px;"></div>
+                    <div class="heatmap-cell" data-level="3" style="width: 15px; height: 15px;"></div>
+                    <div class="heatmap-cell" data-level="4" style="width: 15px; height: 15px;"></div>
+                    <span class="small text-muted">Mais</span>
+                </div>
+                <div style="overflow-x: auto;">
+                    <div class="heatmap-grid">
+                        ${Object.entries(dadosPorDia).map(([data, valor]) => {
+                            const nivel = getNivel(valor);
+                            const d = new Date(data);
+                            const label = valor > 0 
+                                ? `${d.toLocaleDateString('pt-BR')}: ${valor}mm`
+                                : `${d.toLocaleDateString('pt-BR')}: Sem chuva`;
+                            return `<div class="heatmap-cell" data-level="${nivel}" title="${label}"></div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // ===== TABELA =====
         function preencherTabela() {
             const tbody = document.getElementById('tableBody');
+            document.getElementById('recordCount').textContent = dadosChuva.length;
             
-            dadosChuva.forEach((item, index) => {
-                if (index > 100) return; // Limitar a 100 registros
-                
-                const tr = document.createElement('tr');
+            dadosChuva.forEach((item, idx) => {
                 const dataFormatada = new Date(item.data).toLocaleDateString('pt-BR');
                 const chuvaClass = item.chuva_mm > 50 ? 'high-rain' : '';
                 
+                let intensidade, badgeClass;
+                if (item.chuva_mm < 10) {
+                    intensidade = 'Fraca';
+                    badgeClass = 'bg-secondary';
+                } else if (item.chuva_mm < 30) {
+                    intensidade = 'Moderada';
+                    badgeClass = 'bg-info';
+                } else if (item.chuva_mm < 50) {
+                    intensidade = 'Forte';
+                    badgeClass = 'bg-warning';
+                } else {
+                    intensidade = 'Muito Forte';
+                    badgeClass = 'bg-danger';
+                }
+                
+                let intervalo = '-';
+                if (idx < dadosChuva.length - 1) {
+                    const diff = Math.abs(new Date(dadosChuva[idx].data) - new Date(dadosChuva[idx + 1].data));
+                    intervalo = `${Math.floor(diff / (1000 * 60 * 60 * 24))} dias`;
+                }
+                
+                const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><strong>${dataFormatada}</strong></td>
                     <td class="${chuvaClass}">
                         ${item.chuva_mm.toFixed(0)} mm
                         ${item.chuva_mm > 50 ? '<i class="fas fa-exclamation-circle ms-1"></i>' : ''}
                     </td>
+                    <td><span class="badge ${badgeClass}">${intensidade}</span></td>
                     <td><span class="badge bg-primary">${item.temporada}</span></td>
+                    <td class="text-muted small">${intervalo}</td>
                 `;
                 
                 tbody.appendChild(tr);
             });
         }
 
-        // ===== MAPA DE CALOR =====
-        function criarMapaCalor() {
-            const container = document.getElementById('heatmapContainer');
-            
-            // Agrupar dados por mês/ano
-            const dadosPorMes = {};
-            
-            dadosChuva.forEach(item => {
-                const data = new Date(item.data);
-                const mesAno = `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}`;
-                const mesNome = mesesNomesCompletos[data.getMonth()] + '/' + data.getFullYear();
-                const dia = data.getDate();
+        // ===== FILTROS =====
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
                 
-                if (!dadosPorMes[mesAno]) {
-                    dadosPorMes[mesAno] = {
-                        nome: mesNome,
-                        dias: {},
-                        total: 0
-                    };
+                const filter = this.dataset.filter;
+                
+                if (filter === 'compare') {
+                    document.getElementById('comparativoSection').style.display = 'block';
+                    gerarComparativo();
+                } else {
+                    document.getElementById('comparativoSection').style.display = 'none';
                 }
                 
-                dadosPorMes[mesAno].dias[dia] = item.chuva_mm;
-                dadosPorMes[mesAno].total += item.chuva_mm;
+                // Aqui você poderia filtrar os gráficos também
             });
+        });
+
+        // ===== COMPARATIVO =====
+        function gerarComparativo() {
+            const container = document.getElementById('comparisonContainer');
+            container.innerHTML = '';
             
-            // Calcular valores máximo e mínimo para a escala de cores
-            let valorMaximo = 0;
-            Object.values(dadosPorMes).forEach(mes => {
-                Object.values(mes.dias).forEach(val => {
-                    if (val > valorMaximo) valorMaximo = val;
-                });
-            });
-            
-            // Função para obter cor baseada no valor
-            function getColor(value) {
-                const intensity = Math.min(value / valorMaximo, 1);
-                const r = Math.round(13 * (1 - intensity) + 13 * intensity);
-                const g = Math.round(110 * (1 - intensity) + 50 * intensity);
-                const b = Math.round(253 * (1 - intensity) + 150 * intensity);
-                return `rgb(${r}, ${g}, ${b})`;
-            }
-            
-            // Criar blocos de meses (ordem cronológica reversa)
-            const mesesOrdenados = Object.keys(dadosPorMes).sort().reverse();
-            
-            mesesOrdenados.forEach(mesAno => {
-                const mesData = dadosPorMes[mesAno];
-                const dias = mesData.dias;
+            Object.keys(estatisticas).sort().forEach(temp => {
+                const stat = estatisticas[temp];
+                const percDoMaior = (stat.total / Math.max(...Object.values(estatisticas).map(s => s.total))) * 100;
                 
-                const monthBlock = document.createElement('div');
-                monthBlock.className = 'month-block';
-                
-                const monthTitle = document.createElement('div');
-                monthTitle.className = 'month-title';
-                monthTitle.textContent = `${mesData.nome} (${mesData.total.toFixed(0)}mm)`;
-                
-                const dayGrid = document.createElement('div');
-                dayGrid.className = 'day-grid';
-                
-                // Adicionar células apenas para dias que choveram
-                Object.keys(dias).sort((a, b) => a - b).forEach(dia => {
-                    const valor = dias[dia];
-                    const cell = document.createElement('div');
-                    cell.className = 'day-cell';
-                    cell.textContent = dia;
-                    cell.style.backgroundColor = getColor(valor);
-                    cell.setAttribute('data-value', `${dia}: ${valor}mm`);
-                    cell.title = `Dia ${dia}: ${valor}mm`;
-                    dayGrid.appendChild(cell);
-                });
-                
-                monthBlock.appendChild(monthTitle);
-                monthBlock.appendChild(dayGrid);
-                container.appendChild(monthBlock);
+                container.innerHTML += `
+                    <div class="comparison-card">
+                        <h5 class="mb-3">${temp}</h5>
+                        <div class="text-center">
+                            <div style="width: 100px; height: 100px; margin: 0 auto; background: conic-gradient(var(--primary-blue) ${percDoMaior * 3.6}deg, #e0e0e0 0deg); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <div style="width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                                    <strong style="font-size: 1.5rem; color: var(--primary-blue);">${stat.total.toFixed(0)}</strong>
+                                    <small style="font-size: 0.7rem;">mm</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 small text-muted">
+                            <div>📊 ${stat.count} eventos</div>
+                            <div>📈 Média: ${stat.media.toFixed(1)}mm</div>
+                            <div>🎯 ${percDoMaior.toFixed(0)}% do maior</div>
+                        </div>
+                    </div>
+                `;
             });
         }
 
         // ===== INICIALIZAÇÃO =====
         document.addEventListener('DOMContentLoaded', function() {
-            gerarKPIs();
-            criarGraficoCombinado();
-            criarRadarChart();
-            preencherTabela();
-            criarMapaCalor();
+            setTimeout(() => {
+                gerarDashboardExecutivo();
+                gerarKPIs();
+                gerarEstatisticas();
+                criarGraficoMultiSafra();
+                criarGraficoDistribuicao();
+                criarGraficoIntervalos();
+                criarRadarChart();
+                criarMapaCalorGitHub();
+                preencherTabela();
+            }, 100);
         });
     </script>
 </body>
