@@ -1030,25 +1030,53 @@
     }
 
     // =========================
-    // 11) INIT
-    // =========================
-    window.onload = () => {
-      state.data = loadData();
+// 11) INIT (CORRIGIDO)
+// =========================
+window.onload = () => {
+  state.data = loadData();
 
-      // seleção inicial: última safra
-      const totals = annualTotals();
-      if(totals.length){
-        state.selectedSeasons = [totals[totals.length-1].season];
-      }
+  // seleção inicial: última safra
+  const totals = annualTotals();
+  if (totals.length) {
+    state.selectedSeasons = [totals[totals.length - 1].season];
+  }
 
-      // listeners de modo
-      document.getElementById("modeAnnual").addEventListener("change", ()=>{ if(modeAnnual.checked){ state.viewMode="annual"; rebuild(); } });
-      document.getElementById("modeMonthly").addEventListener("change", ()=>{ if(modeMonthly.checked){ state.viewMode="monthly"; rebuild(); } });
-      document.getElementById("modeDaily").addEventListener("change", ()=>{ if(modeDaily.checked){ state.viewMode="daily"; rebuild(); } });
-      document.getElementById("modeCalendar").addEventListener("change", ()=>{ if(modeCalendar.checked){ state.viewMode="calendar"; rebuild(); } });
+  // refs dos radios (não dependa de "id virar variável global")
+  const elModeAnnual   = document.getElementById("modeAnnual");
+  const elModeMonthly  = document.getElementById("modeMonthly");
+  const elModeDaily    = document.getElementById("modeDaily");
+  const elModeCalendar = document.getElementById("modeCalendar");
 
+  elModeAnnual.addEventListener("change", () => {
+    if (elModeAnnual.checked) {
+      state.viewMode = "annual";
       rebuild();
-    };
+    }
+  });
+
+  elModeMonthly.addEventListener("change", () => {
+    if (elModeMonthly.checked) {
+      state.viewMode = "monthly";
+      rebuild();
+    }
+  });
+
+  elModeDaily.addEventListener("change", () => {
+    if (elModeDaily.checked) {
+      state.viewMode = "daily";
+      rebuild();
+    }
+  });
+
+  elModeCalendar.addEventListener("change", () => {
+    if (elModeCalendar.checked) {
+      state.viewMode = "calendar";
+      rebuild();
+    }
+  });
+
+  rebuild();
+};
   </script>
 </body>
 </html>
