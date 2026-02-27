@@ -1,340 +1,301 @@
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fazenda Cacimbas - Dashboard de Chuvas</title>
+  <meta name="description" content="Dashboard de monitoramento de chuvas e gestão hídrica para a Fazenda Cacimbas">
+  <meta name="theme-color" content="#2563eb">
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Tailwind CSS (production build) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            rain: { light: '#dbeafe', base: '#2563eb', dark: '#1e40af' },
+            drought: { light: '#fed7aa', base: '#f97316', dark: '#c2410c' },
+            good: { light: '#dcfce7', base: '#10b981', dark: '#047857' },
+            bad: { light: '#fee2e2', base: '#dc2626', dark: '#991b1b' }
+          },
+          animation: { 'fadeIn': 'fadeIn 0.3s ease-in-out' },
+          keyframes: { fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } } }
+        }
+      }
+    }
+  </script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <style>
-    :root{
-      --primary-blue:#2563eb;
-      --success-green:#10b981;
-      --warning-yellow:#f59e0b;
-      --danger-red:#ef4444;
-      --bg-primary:#f8fafc;
-      --bg-secondary:#ffffff;
-      --text-primary:#1e293b;
-      --text-secondary:#64748b;
-      --border-color:#e2e8f0;
-      --card-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06);
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
+    
+    * { font-family: 'Inter', -apple-system, sans-serif; }
+    h1, h2, h3, .fw-bold { font-family: 'Poppins', sans-serif; }
+    
+    body { @apply bg-slate-50 text-slate-900; }
+    
+    .glass-card { 
+      @apply bg-white rounded-2xl p-5 shadow-sm border border-slate-100;
+      backdrop-filter: blur(10px);
     }
-
-    body{
-      background:var(--bg-primary);
-      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color:var(--text-primary);
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
+    
+    .glass-card:hover { @apply shadow-md transition-shadow duration-200; }
+    
+    .badge-weather { 
+      @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold;
     }
-
-    .header-section{
-      background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);
-      color:#fff;
-      padding:1.6rem 0;
-      margin-bottom:1.2rem;
-      box-shadow:0 10px 15px -3px rgba(37,99,235,.2);
+    
+    .chip-season {
+      @apply inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 border-slate-200 text-sm font-bold;
+      @apply cursor-pointer transition-all duration-150 hover:border-blue-300;
     }
-
-    .logo-img{
-      width:56px;
-      margin-right:1rem;
-      filter:brightness(0) invert(1);
+    
+    .chip-season.active {
+      @apply bg-rain-base text-white border-rain-base;
     }
-
-    .glass-card{
-      background:var(--bg-secondary);
-      border-radius:16px;
-      padding:1.2rem;
-      box-shadow:var(--card-shadow);
-      border:1px solid var(--border-color);
-      margin-bottom:1rem;
+    
+    .heatmap-cell {
+      @apply w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold;
+      @apply cursor-help transition-transform duration-150 hover:scale-110;
     }
-
-    .kpi-value{ font-size:2rem; font-weight:800; color:var(--primary-blue); line-height:1.1; }
-    .kpi-label{ font-size:.78rem; font-weight:800; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.6px; }
-    .kpi-sub{ font-size:.85rem; color:var(--text-secondary); }
-
-    .chip{
-      display:inline-flex;
-      align-items:center;
-      gap:.45rem;
-      padding:.35rem .7rem;
-      border-radius:999px;
-      border:1px solid var(--border-color);
-      background:#fff;
-      font-weight:700;
-      font-size:.9rem;
-      cursor:pointer;
-      user-select:none;
-      transition:all .15s;
+    
+    .heatmap-cell:hover { @apply shadow-lg; }
+    
+    .alert-banner {
+      @apply p-4 rounded-xl border-l-4 flex items-start gap-3;
+      @apply animate-fadeIn;
     }
-    .chip.active{ background:var(--primary-blue); border-color:var(--primary-blue); color:#fff; }
-    .chip:focus{ outline:2px solid rgba(37,99,235,.25); outline-offset:2px; }
-
-    .radar-container{
-      width:100%;
-      height:500px;
-      border-radius:12px;
-      overflow:hidden;
-      border:1px solid var(--border-color);
-      display:none;
+    
+    .alert-banner.critical { @apply bg-bad-light border-bad-base text-bad-dark; }
+    .alert-banner.warning { @apply bg-drought-light border-drought-base text-drought-dark; }
+    .alert-banner.success { @apply bg-good-light border-good-base text-good-dark; }
+    
+    .loading { @apply animate-pulse; }
+    
+    .chart-container {
+      @apply relative w-full h-96 sm:h-80 md:h-96 lg:h-full;
     }
-
-    .heatmap-wrapper{ display:flex; flex-wrap:wrap; gap:10px; max-height:420px; overflow:auto; }
-    .month-block{ background:#f1f5f9; border-radius:10px; padding:10px; flex:1 1 200px; }
-    .month-title{ font-size:.78rem; font-weight:900; color:var(--text-secondary); margin-bottom:8px; text-transform:uppercase; }
-    .days-grid{ display:flex; flex-wrap:wrap; gap:4px; }
-    .rain-day{
-      width:28px; height:28px; border-radius:6px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:.7rem; font-weight:800; color:#fff;
-    }
-    .lvl-0{ background:#cbd5e1; color:#0f172a; }
-    .lvl-1{ background:#93c5fd; }
-    .lvl-2{ background:#3b82f6; }
-    .lvl-3{ background:#1d4ed8; }
-    .lvl-4{ background:#1e3a8a; border:2px solid #fbbf24; }
-
-    .table-modern th{ background:#f1f5f9; text-transform:uppercase; font-size:.75rem; letter-spacing:.6px; }
-    .badge-safra{ background:#dbeafe; color:#1e40af; padding:4px 10px; border-radius:999px; font-size:.75rem; font-weight:900; }
-    .badge-good{ background:#dcfce7; color:#166534; }
-    .badge-bad{ background:#fee2e2; color:#991b1b; }
-    .badge-mid{ background:#e2e8f0; color:#0f172a; }
-
-    .footer{
-      margin-top:auto;
-      background:var(--bg-secondary);
-      padding:1.2rem 0;
-      text-align:center;
-      border-top:1px solid var(--border-color);
-      font-size:.9rem;
-      color:var(--text-secondary);
-    }
-
-    /* Garante altura do chart para não “sumir” em alguns layouts */
-    .chart-box{ height: 360px; }
-    @media (max-width: 576px){
-      .chart-box{ height: 320px; }
+    
+    @media (max-width: 768px) {
+      .chip-season { @apply px-3 py-1.5 text-xs; }
+      .heatmap-cell { @apply w-8 h-8 text-xs; }
+      .glass-card { @apply p-4; }
     }
   </style>
 </head>
 
-<body>
-  <div class="header-section">
-    <div class="container d-flex align-items-center justify-content-between">
-      <div class="d-flex align-items-center">
-        <img src="https://cdn-icons-png.flaticon.com/512/2830/2830227.png" alt="Logo" class="logo-img">
-        <div>
-          <h1 class="h3 fw-bold mb-0">Fazenda Cacimbas</h1>
-          <p class="mb-0 opacity-75">Dashboard de Chuvas e Safras</p>
-        </div>
-      </div>
-      <div class="text-end d-none d-md-block">
-        <div class="h6 fw-bold mb-0" id="currentDate"></div>
-        <small class="opacity-75">Visão por ciclo, comparação e histórico</small>
-      </div>
-    </div>
-  </div>
-
-  <div class="container pb-5">
-    <div class="row g-3 align-items-stretch mb-2">
-      <div class="col-lg-8">
-        <div class="glass-card h-100">
-          <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-            <div>
-              <div class="fw-bold"><i class="fa-solid fa-sliders me-2 text-primary"></i>Seleção</div>
-              <div class="text-muted small">
-                Selecione 1 safra para Diário/Calendário. Selecione até 4 para comparar no Mensal/Anual.
-              </div>
-            </div>
-            <div class="d-flex gap-2 flex-wrap">
-              <button class="btn btn-outline-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalAdd">
-                <i class="fa-solid fa-plus me-2"></i>Novo registro
-              </button>
-              <button class="btn btn-outline-primary fw-bold" type="button" onclick="toggleRadar()">
-                <i class="fa-solid fa-satellite-dish me-2"></i>Radar FUNCEME
-              </button>
-              <div class="btn-group">
-                <button class="btn btn-outline-secondary fw-bold" type="button" onclick="exportCSV()">
-                  <i class="fa-solid fa-file-export me-2"></i>Exportar CSV
-                </button>
-                <label class="btn btn-outline-secondary fw-bold mb-0">
-                  <i class="fa-solid fa-file-import me-2"></i>Importar CSV
-                  <input type="file" accept=".csv" hidden onchange="importCSV(event)">
-                </label>
-              </div>
-            </div>
+<body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen flex flex-col">
+  
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-rain-dark to-rain-base text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-md">
+            <svg class="w-8 h-8 text-rain-base" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8zm0 18c-3.35 0-6-2.57-6-6.2 0-2.34 1.95-5.44 6-9.14 4.05 3.7 6 6.79 6 9.14 0 3.63-2.65 6.2-6 6.2z"/>
+            </svg>
           </div>
-
-          <div class="radar-container mt-3" id="radarBox">
-            <iframe src="https://radar.funceme.br/radar-mini" width="100%" height="100%" style="border:0;"></iframe>
-          </div>
-
-          <hr class="my-3">
-
-          <div class="d-flex flex-wrap gap-2 align-items-center">
-            <span class="small text-muted fw-bold">Ações:</span>
-            <button class="btn btn-sm btn-light border" type="button" onclick="selectPreset('last')">Última safra</button>
-            <button class="btn btn-sm btn-light border" type="button" onclick="selectPreset('best')">Melhor safra</button>
-            <button class="btn btn-sm btn-light border" type="button" onclick="selectPreset('worst')">Pior safra</button>
-            <button class="btn btn-sm btn-light border" type="button" onclick="selectPreset('clear')">Limpar seleção</button>
-          </div>
-
-          <div class="mt-3" id="seasonChips" aria-label="Seleção de safras"></div>
-
-          <div class="mt-3 d-flex flex-wrap gap-2 align-items-center">
-            <span class="small text-muted fw-bold">Modo:</span>
-            <div class="btn-group" role="group" aria-label="Modo de visualização">
-              <input type="radio" class="btn-check" name="viewMode" id="modeAnnual" autocomplete="off" checked>
-              <label class="btn btn-outline-primary" for="modeAnnual">Anual</label>
-
-              <input type="radio" class="btn-check" name="viewMode" id="modeMonthly" autocomplete="off">
-              <label class="btn btn-outline-primary" for="modeMonthly">Mensal</label>
-
-              <input type="radio" class="btn-check" name="viewMode" id="modeDaily" autocomplete="off">
-              <label class="btn btn-outline-primary" for="modeDaily">Diário</label>
-
-              <input type="radio" class="btn-check" name="viewMode" id="modeCalendar" autocomplete="off">
-              <label class="btn btn-outline-primary" for="modeCalendar">Calendário</label>
-            </div>
-
-            <span class="ms-auto small text-muted" id="modeHint"></span>
+          <div>
+            <h1 class="text-3xl font-bold">Fazenda Cacimbas</h1>
+            <p class="text-blue-100 text-sm">Dashboard de Monitoramento Hídrico</p>
           </div>
         </div>
-      </div>
-
-      <div class="col-lg-4">
-        <div class="glass-card h-100">
-          <div class="fw-bold mb-2"><i class="fa-solid fa-gauge-high me-2 text-primary"></i>Indicadores</div>
-          <div class="row g-2" id="kpiContainer"></div>
-          <hr class="my-3">
-          <div class="fw-bold mb-2"><i class="fa-solid fa-ranking-star me-2 text-primary"></i>Classificação</div>
-          <div class="small text-muted mb-2">
-            Baseada no total anual (quartis). Safras com registros incompletos podem distorcer a classificação.
-          </div>
-          <div id="rankingBox"></div>
+        <div class="text-right hidden sm:block">
+          <p class="font-semibold" id="currentDate"></p>
+          <p class="text-blue-100 text-sm">Ciclo agrícola e histórico</p>
         </div>
       </div>
     </div>
+  </header>
 
-    <div class="row g-3">
-      <div class="col-lg-8">
-        <div class="glass-card" id="cardChart">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <div class="fw-bold">
-              <i class="fa-solid fa-chart-line me-2 text-primary"></i><span id="chartTitle">Anual (Totais)</span>
-            </div>
-            <span class="badge bg-light text-dark border" id="chartLabel">Histórico</span>
-          </div>
-          <div class="chart-box">
-            <canvas id="mainChart"></canvas>
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+    
+    <!-- Alertas de Status -->
+    <div id="alertContainer" class="space-y-3"></div>
+
+    <!-- Controles Principais -->
+    <div class="glass-card">
+      <div class="flex flex-col lg:flex-row gap-6 justify-between">
+        <div class="flex-1">
+          <h2 class="text-lg font-bold mb-2">🎯 Seleção de Safras</h2>
+          <p class="text-sm text-slate-600 mb-4">Escolha 1 safra para análise diária ou até 4 para comparação mensal/anual</p>
+          <div class="flex gap-2 flex-wrap">
+            <button class="px-4 py-2 bg-rain-base text-white rounded-lg hover:bg-rain-dark transition" onclick="openAddModal()" aria-label="Adicionar novo registro de chuva">
+              <span>➕ Novo Registro</span>
+            </button>
+            <button class="px-4 py-2 border-2 border-slate-300 rounded-lg hover:bg-slate-50 transition" onclick="toggleRadar()" aria-label="Alternar radar FUNCEME">
+              <span>🛰️ Radar FUNCEME</span>
+            </button>
+            <button class="px-4 py-2 border-2 border-slate-300 rounded-lg hover:bg-slate-50 transition" onclick="exportCSV()" aria-label="Exportar dados em CSV">
+              <span>📥 Exportar CSV</span>
+            </button>
+            <label class="px-4 py-2 border-2 border-slate-300 rounded-lg hover:bg-slate-50 transition cursor-pointer" aria-label="Importar arquivo CSV">
+              <span>📤 Importar CSV</span>
+              <input type="file" accept=".csv" hidden onchange="importCSV(event)">
+            </label>
           </div>
         </div>
-
-        <div class="glass-card d-none" id="cardHeatmap">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <div class="fw-bold"><i class="fa-solid fa-calendar-days me-2 text-primary"></i>Calendário (por safra)</div>
-            <small class="text-muted bg-light px-2 py-1 rounded">Nº = dia do mês</small>
-          </div>
-          <div id="heatmapContainer" class="heatmap-wrapper"></div>
-        </div>
-      </div>
-
-      <div class="col-lg-4">
-        <div class="glass-card" style="height: 640px; display:flex; flex-direction:column;">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <div class="fw-bold"><i class="fa-solid fa-list me-2 text-primary"></i>Registros</div>
-            <span class="small text-muted" id="tableHint"></span>
-          </div>
-          <div class="flex-grow-1 overflow-auto">
-            <table class="table table-modern table-hover mb-0">
-              <thead class="sticky-top">
-                <tr>
-                  <th>Data</th>
-                  <th>Vol.</th>
-                  <th>Safra</th>
-                </tr>
-              </thead>
-              <tbody id="tableBody"></tbody>
-            </table>
-          </div>
-          <div class="pt-2 small text-muted">
-            Dica: para manter consistência, registre sempre em mm e use a safra (ano) como referência.
+        <div class="lg:w-40">
+          <h3 class="text-sm font-bold text-slate-600 mb-2">Ações Rápidas:</h3>
+          <div class="flex flex-wrap gap-2">
+            <button class="px-3 py-1 text-xs bg-slate-100 rounded-lg hover:bg-slate-200 transition" onclick="selectPreset('last')">Última</button>
+            <button class="px-3 py-1 text-xs bg-good-light text-good-dark rounded-lg hover:bg-good-base hover:text-white transition" onclick="selectPreset('best')">Melhor</button>
+            <button class="px-3 py-1 text-xs bg-bad-light text-bad-dark rounded-lg hover:bg-bad-base hover:text-white transition" onclick="selectPreset('worst')">Pior</button>
+            <button class="px-3 py-1 text-xs bg-slate-100 rounded-lg hover:bg-slate-200 transition" onclick="selectPreset('clear')">Limpar</button>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <footer class="footer">
-    <div class="container">
-      <p class="mb-0">Desenvolvido por <strong>Murilo Feitosa</strong></p>
-      <small>Fazenda Cacimbas &copy; 2026</small>
+      <div id="radarBox" class="hidden mt-4 w-full h-96 rounded-xl overflow-hidden border border-slate-200">
+        <iframe src="https://radar.funceme.br/radar-mini" width="100%" height="100%" style="border:0;"></iframe>
+      </div>
+
+      <hr class="my-4 border-slate-200">
+
+      <!-- Chips de Safras -->
+      <div class="mb-4">
+        <p class="text-xs font-bold text-slate-600 mb-2 uppercase">Safras disponíveis:</p>
+        <div id="seasonChips" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <!-- Modo de Visualização -->
+      <div class="flex flex-col sm:flex-row items-center gap-4">
+        <p class="text-xs font-bold text-slate-600 uppercase">Modo:</p>
+        <div class="flex gap-2 flex-wrap" role="group" aria-label="Seleção de modo de visualização">
+          <input type="radio" id="modeAnnual" name="viewMode" class="hidden peer" checked>
+          <label for="modeAnnual" class="px-4 py-2 border-2 border-slate-300 rounded-lg cursor-pointer transition peer-checked:bg-rain-base peer-checked:text-white peer-checked:border-rain-base hover:border-rain-base">Anual</label>
+
+          <input type="radio" id="modeMonthly" name="viewMode" class="hidden peer">
+          <label for="modeMonthly" class="px-4 py-2 border-2 border-slate-300 rounded-lg cursor-pointer transition peer-checked:bg-rain-base peer-checked:text-white peer-checked:border-rain-base hover:border-rain-base">Mensal</label>
+
+          <input type="radio" id="modeDaily" name="viewMode" class="hidden peer">
+          <label for="modeDaily" class="px-4 py-2 border-2 border-slate-300 rounded-lg cursor-pointer transition peer-checked:bg-rain-base peer-checked:text-white peer-checked:border-rain-base hover:border-rain-base">Diário</label>
+
+          <input type="radio" id="modeCalendar" name="viewMode" class="hidden peer">
+          <label for="modeCalendar" class="px-4 py-2 border-2 border-slate-300 rounded-lg cursor-pointer transition peer-checked:bg-rain-base peer-checked:text-white peer-checked:border-rain-base hover:border-rain-base">Calendário</label>
+        </div>
+        <span class="text-xs text-slate-500 ml-auto" id="modeHint"></span>
+      </div>
     </div>
+
+    <!-- Grid Principal (KPI + Gráfico + Tabela) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- KPI + Classificação -->
+      <div class="glass-card lg:col-span-1">
+        <h2 class="text-lg font-bold mb-4">📊 Indicadores</h2>
+        <div id="kpiContainer" class="space-y-3 mb-4"></div>
+        
+        <hr class="my-4 border-slate-200">
+        
+        <h3 class="text-sm font-bold mb-2">⭐ Classificação (Quartis)</h3>
+        <p class="text-xs text-slate-600 mb-3">Baseada no histórico de chuvas anuais</p>
+        <div id="rankingBox" class="space-y-2 max-h-96 overflow-y-auto"></div>
+      </div>
+
+      <!-- Gráfico Principal -->
+      <div class="glass-card lg:col-span-2">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h2 class="text-lg font-bold" id="chartTitle">Anual (Totais)</h2>
+            <span class="text-xs text-slate-500" id="modeHint2"></span>
+          </div>
+          <span class="text-xs px-3 py-1 bg-blue-100 text-blue-900 rounded-full font-semibold" id="chartLabel">Histórico</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="mainChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Heatmap (Calendário) -->
+    <div class="glass-card hidden" id="cardHeatmap">
+      <h2 class="text-lg font-bold mb-4">📅 Calendário de Chuvas</h2>
+      <p class="text-sm text-slate-600 mb-4">Cada célula representa um dia. Número = dia do mês. Cor = intensidade da chuva.</p>
+      <div id="heatmapContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto"></div>
+      <div class="mt-4 flex gap-6 text-xs">
+        <div class="flex items-center gap-2"><div class="w-6 h-6 rounded bg-slate-300"></div><span>Sem chuva</span></div>
+        <div class="flex items-center gap-2"><div class="w-6 h-6 rounded bg-blue-300"></div><span>Leve (&lt;20mm)</span></div>
+        <div class="flex items-center gap-2"><div class="w-6 h-6 rounded bg-rain-base"></div><span>Moderada (20-50mm)</span></div>
+        <div class="flex items-center gap-2"><div class="w-6 h-6 rounded bg-rain-dark"></div><span>Forte (50-90mm)</span></div>
+        <div class="flex items-center gap-2"><div class="w-6 h-6 rounded bg-good-base border-2 border-yellow-400"></div><span>Abundante (&gt;90mm)</span></div>
+      </div>
+    </div>
+
+    <!-- Tabela de Registros -->
+    <div class="glass-card">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold">📋 Registros Recentes</h2>
+        <span class="text-xs text-slate-600" id="tableHint"></span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm" role="table" aria-label="Tabela de registros de chuva">
+          <thead class="bg-slate-100 border-b-2 border-slate-300">
+            <tr>
+              <th class="text-left px-4 py-3 font-bold">Data</th>
+              <th class="text-center px-4 py-3 font-bold">Volume (mm)</th>
+              <th class="text-center px-4 py-3 font-bold">Safra</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        <p class="text-xs text-slate-500 mt-3 px-4">💡 Dica: Registre sempre em mm e use o ano como referência de safra para manter consistência.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 text-center py-6 text-sm text-slate-600 mt-auto">
+    <p class="font-semibold">Desenvolvido por <strong>Murilo Feitosa</strong></p>
+    <p>Fazenda Cacimbas © 2026 | <a href="#" class="text-rain-base hover:underline">Suporte</a> • <a href="#" class="text-rain-base hover:underline">Documentação</a></p>
   </footer>
 
-  <!-- Modal: Adicionar registro -->
-  <div class="modal fade" id="modalAdd" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold"><i class="fa-solid fa-plus me-2 text-primary"></i>Novo registro de chuva</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+  <!-- Modal: Adicionar Registro -->
+  <div id="modalAdd" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='modalAdd') closeAddModal()">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-fadeIn">
+      <h2 class="text-2xl font-bold mb-4">➕ Novo Registro de Chuva</h2>
+      
+      <div class="space-y-4 mb-6">
+        <div>
+          <label class="block text-sm font-bold mb-1">Data *</label>
+          <input type="date" id="addDate" class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-rain-base focus:outline-none transition" aria-label="Data da chuva">
         </div>
-        <div class="modal-body">
-          <div class="row g-2">
-            <div class="col-6">
-              <label class="form-label fw-bold">Data</label>
-              <input type="date" class="form-control" id="addDate">
-            </div>
-            <div class="col-6">
-              <label class="form-label fw-bold">Volume (mm)</label>
-              <input type="number" class="form-control" id="addValue" min="0" step="0.1" placeholder="Ex.: 12">
-            </div>
-            <div class="col-12">
-              <label class="form-label fw-bold">Safra (Inverno)</label>
-              <input type="text" class="form-control" id="addSeason" placeholder="Ex.: 2026" inputmode="numeric">
-              <div class="form-text">
-                Use o ano de referência da safra. Ex.: chuvas de fev/2026 → safra 2026.
-              </div>
-            </div>
-          </div>
-          <div class="alert alert-warning mt-3 mb-0 small">
-            Este lançamento salva no seu navegador (localStorage). Para backup e migração, use Exportar CSV.
-          </div>
+        
+        <div>
+          <label class="block text-sm font-bold mb-1">Volume (mm) *</label>
+          <input type="number" id="addValue" min="0" step="0.1" placeholder="Ex.: 12.5" class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-rain-base focus:outline-none transition" aria-label="Volume de chuva em milímetros">
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-light border" data-bs-dismiss="modal" type="button">Cancelar</button>
-          <button class="btn btn-primary fw-bold" type="button" onclick="addRecord()">Salvar</button>
+        
+        <div>
+          <label class="block text-sm font-bold mb-1">Safra (Ano) *</label>
+          <input type="text" id="addSeason" placeholder="Ex.: 2026" inputmode="numeric" class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-rain-base focus:outline-none transition" aria-label="Ano da safra">
+          <p class="text-xs text-slate-600 mt-1">Use o ano de referência. Ex: chuvas de fev/2026 → safra 2026</p>
         </div>
+      </div>
+
+      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded mb-6">
+        <p class="text-xs text-yellow-900">⚠️ Os dados são salvos localmente no seu navegador (localStorage). Para backup e migração, use Exportar CSV.</p>
+      </div>
+
+      <div class="flex gap-3">
+        <button class="flex-1 px-4 py-2 border-2 border-slate-300 rounded-lg hover:bg-slate-50 transition font-bold" onclick="closeAddModal()">Cancelar</button>
+        <button class="flex-1 px-4 py-2 bg-rain-base text-white rounded-lg hover:bg-rain-dark transition font-bold" onclick="addRecord()">Salvar</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast simples (substitui alert em pontos críticos) -->
-  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
-    <div id="appToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="d-flex">
-        <div class="toast-body" id="toastMsg">Mensagem</div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Toast de Notificação -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-lg hidden z-50 max-w-xs" role="status" aria-live="polite"></div>
 
   <script>
-    // ==========================================================
-    // 1) DADOS BASE (mantidos) + NORMALIZAÇÃO
-    // ==========================================================
+    // ============================================================
+    // 1) DADOS E ESTADO
+    // ============================================================
     const rawDataBase = [
-      // Totais anuais históricos
       { date: '2013-01-01', value: 312, season: '2013' },
       { date: '2014-01-01', value: 499, season: '2014' },
       { date: '2015-01-01', value: 478, season: '2015' },
@@ -345,8 +306,6 @@
       { date: '2020-01-01', value: 898, season: '2020' },
       { date: '2021-01-01', value: 609, season: '2021' },
       { date: '2022-01-01', value: 595, season: '2022' },
-
-      // Safra 2024 (diário)
       { date: '2023-11-06', value: 6, season: '2024' },
       { date: '2023-11-28', value: 8, season: '2024' },
       { date: '2023-12-18', value: 9, season: '2024' },
@@ -378,8 +337,6 @@
       { date: '2024-04-20', value: 5, season: '2024' },
       { date: '2024-04-21', value: 23, season: '2024' },
       { date: '2024-04-22', value: 11, season: '2024' },
-
-      // Safra 2025 (diário)
       { date: '2024-12-03', value: 40, season: '2025' },
       { date: '2025-01-13', value: 14, season: '2025' },
       { date: '2025-01-14', value: 105, season: '2025' },
@@ -406,8 +363,6 @@
       { date: '2025-05-05', value: 11, season: '2025' },
       { date: '2025-05-10', value: 10, season: '2025' },
       { date: '2025-05-21', value: 9, season: '2025' },
-
-      // Safra 2026 (diário)
       { date: '2025-10-21', value: 20, season: '2026' },
       { date: '2025-12-22', value: 55, season: '2026' },
       { date: '2025-12-23', value: 18, season: '2026' },
@@ -425,81 +380,105 @@
       { date: '2026-02-27', value: 24, season: '2026' }
     ];
 
-    // ==========================================================
-    // 2) CONFIGURAÇÃO GERAL / ESTADO
-    // ==========================================================
     const monthNames = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
-    const LS_KEY = "cacimbas_rain_v2"; // versão nova para evitar conflito com versões antigas
+    const LS_KEY = "cacimbas_rain_v3";
 
     const state = {
-      viewMode: "annual",    // annual | monthly | daily | calendar
-      selectedSeasons: [],   // até 4
-      data: []               // dados normalizados e consolidados
+      viewMode: "annual",
+      selectedSeasons: [],
+      data: [],
+      cachedTotals: null,
+      cachedClassification: null
     };
 
     let chartMain = null;
 
-    document.getElementById("currentDate").textContent =
-      new Date().toLocaleDateString("pt-BR", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+    // ============================================================
+    // 2) UTILIDADES E STORAGE
+    // ============================================================
+    function getStorage(){
+      try {
+        if(localStorage) return localStorage;
+      } catch(e) {}
+      showToast("⚠️ Armazenamento local desabilitado. Dados não serão salvos entre sessões.", 5000);
+      return { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+    }
 
-    function showToast(message){
-      const el = document.getElementById("appToast");
-      const msg = document.getElementById("toastMsg");
-      msg.textContent = message;
-      const toast = bootstrap.Toast.getOrCreateInstance(el, { delay: 2500 });
-      toast.show();
+    function showToast(msg, duration = 2500){
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.remove("hidden");
+      setTimeout(() => el.classList.add("hidden"), duration);
+    }
+
+    function formatDate(dateStr){
+      const d = new Date(dateStr + "T00:00:00");
+      return d.toLocaleDateString("pt-BR");
+    }
+
+    function formatNumber(n){
+      return Math.round(n).toLocaleString("pt-BR");
+    }
+
+    function isValidISODate(dateStr){
+      return /^\d{4}-\d{2}-\d{2}$/.test(dateStr) && !isNaN(new Date(dateStr + "T00:00:00"));
     }
 
     function toggleRadar(){
       const box = document.getElementById("radarBox");
-      box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
+      box.classList.toggle("hidden");
     }
 
-    // ==========================================================
-    // 3) NORMALIZAÇÃO, CONSOLIDAÇÃO E STORAGE
-    // ==========================================================
+    function openAddModal(){
+      const modal = document.getElementById("modalAdd");
+      modal.classList.remove("hidden");
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById("addDate").value = today;
+      document.getElementById("addSeason").value = new Date().getFullYear();
+      document.getElementById("addDate").focus();
+    }
+
+    function closeAddModal(){
+      document.getElementById("modalAdd").classList.add("hidden");
+    }
+
+    // ============================================================
+    // 3) CARREGAMENTO E CONSOLIDAÇÃO DE DADOS
+    // ============================================================
     function normalizeBaseData(list){
-      // Regra: registros do histórico anual (2013-2022) com data 01/01 viram annual_total.
-      // Os demais viram daily.
       return list.map(d => {
         const year = Number(d.season);
         const kind = (year <= 2022 && String(d.date).endsWith("-01-01")) ? "annual_total" : "daily";
         return {
           date: String(d.date),
-          value: Number(d.value) || 0,
+          value: Math.max(0, Number(d.value) || 0),
           season: String(d.season),
           kind
         };
       });
     }
 
-    function isValidISODate(dateStr){
-      if(!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return false;
-      const dt = new Date(dateStr + "T00:00:00");
-      return !Number.isNaN(dt.getTime());
-    }
-
     function loadExtra(){
-      const saved = localStorage.getItem(LS_KEY);
+      const saved = getStorage().getItem(LS_KEY);
       if(!saved) return [];
-      try{
+      try {
         const extra = JSON.parse(saved);
-        if(!Array.isArray(extra)) return [];
-        return extra
+        return Array.isArray(extra) ? extra
           .map(r => ({
             date: String(r.date),
-            value: Number(r.value) || 0,
+            value: Math.max(0, Number(r.value) || 0),
             season: String(r.season),
             kind: "daily"
           }))
-          .filter(r => isValidISODate(r.date) && r.season);
-      }catch{
+          .filter(r => isValidISODate(r.date) && /^\d{4}$/.test(r.season))
+          : [];
+      } catch {
         return [];
       }
     }
 
     function saveExtra(list){
-      localStorage.setItem(LS_KEY, JSON.stringify(list));
+      getStorage().setItem(LS_KEY, JSON.stringify(list.slice(0, 5000))); // limita 5k
     }
 
     function loadData(){
@@ -507,46 +486,617 @@
       const extra = loadExtra();
       const merged = [...base, ...extra];
 
-      // Consolidação: evita duplicidade por (season, date, kind).
-      // Se houver duplicados daily na mesma data e safra, soma volumes.
-      const key = (r) => `${r.season}__${r.date}__${r.kind}`;
       const map = new Map();
-
-      merged.forEach(r=>{
-        const k = key(r);
+      merged.forEach(r => {
+        const k = `${r.season}__${r.date}__${r.kind}`;
         if(!map.has(k)){
           map.set(k, {...r});
-          return;
-        }
-        const existing = map.get(k);
-        if(r.kind === "daily"){
-          existing.value += r.value;
-          map.set(k, existing);
-        }else{
-          // annual_total: mantém o maior, por segurança
-          existing.value = Math.max(existing.value, r.value);
-          map.set(k, existing);
+        } else {
+          const ex = map.get(k);
+          if(r.kind === "daily"){
+            ex.value += r.value;
+          } else {
+            ex.value = Math.max(ex.value, r.value);
+          }
+          map.set(k, ex);
         }
       });
 
       return Array.from(map.values());
     }
 
+    // ============================================================
+    // 4) MÉTRICA AGREGAÇÃO (COM CACHE)
+    // ============================================================
+    function annualTotals(){
+      if(state.cachedTotals) return state.cachedTotals;
+
+      const bySeason = {};
+      const hasAnnual = new Set();
+
+      state.data.forEach(r => {
+        if(!bySeason[r.season]) bySeason[r.season] = { annual: 0, dailySum: 0 };
+        if(r.kind === "annual_total"){
+          bySeason[r.season].annual += r.value;
+          hasAnnual.add(r.season);
+        } else {
+          bySeason[r.season].dailySum += r.value;
+        }
+      });
+
+      const result = Object.keys(bySeason)
+        .map(season => ({
+          season,
+          total: Math.round(hasAnnual.has(season) ? bySeason[season].annual : bySeason[season].dailySum)
+        }))
+        .sort((a,b) => Number(a.season) - Number(b.season));
+
+      state.cachedTotals = result;
+      return result;
+    }
+
+    function quartiles(nums){
+      if(nums.length === 0) return { q1: 0, q3: 0 };
+      const a = [...nums].sort((x,y) => x-y);
+      const q = (p) => {
+        const pos = (a.length - 1) * p;
+        const base = Math.floor(pos);
+        const rest = pos - base;
+        return a[base+1] ? a[base] + rest * (a[base+1] - a[base]) : a[base];
+      };
+      return { q1: q(0.25), q3: q(0.75) };
+    }
+
+    function classifySeasons(){
+      if(state.cachedClassification) return state.cachedClassification;
+
+      const totals = annualTotals();
+      const values = totals.map(t => t.total);
+
+      let map = new Map();
+      if(values.length < 4){
+        const sorted = [...values].sort((a,b) => a-b);
+        const median = sorted[Math.floor(sorted.length/2)] || 0;
+        totals.forEach(t => map.set(t.season, t.total >= median ? "good" : "bad"));
+        state.cachedClassification = { map, q1: null, q3: null };
+        return state.cachedClassification;
+      }
+
+      const { q1, q3 } = quartiles(values);
+      totals.forEach(t => {
+        let cls = "mid";
+        if(t.total <= q1) cls = "bad";
+        if(t.total >= q3) cls = "good";
+        map.set(t.season, cls);
+      });
+
+      state.cachedClassification = { map, q1, q3 };
+      return state.cachedClassification;
+    }
+
+    function dailyBySeason(season){
+      return state.data
+        .filter(r => r.kind === "daily" && r.season === season)
+        .map(r => ({ ...r, dt: new Date(r.date + "T00:00:00") }))
+        .sort((a,b) => a.dt - b.dt);
+    }
+
+    function monthlyTotalsForSeason(season){
+      const arr = dailyBySeason(season);
+      const months = Array(12).fill(0);
+      arr.forEach(r => {
+        months[r.dt.getMonth()] += r.value;
+      });
+      return months.map(v => Math.round(v));
+    }
+
+    function checkAlerts(){
+      const now = new Date();
+      const alerts = [];
+
+      state.selectedSeasons.forEach(season => {
+        const arr = dailyBySeason(season);
+        if(arr.length === 0) return;
+
+        const lastRain = arr[arr.length - 1];
+        const daysSinceRain = Math.floor((now - lastRain.dt) / (1000*60*60*24));
+
+        if(daysSinceRain > 30){
+          alerts.push({
+            type: "critical",
+            title: "⚠️ Seca Prolongada",
+            msg: `Safra ${season}: ${daysSinceRain} dias sem chuva`
+          });
+        }
+
+        const totalThisMonth = arr
+          .filter(r => r.dt.getMonth() === now.getMonth())
+          .reduce((sum, r) => sum + r.value, 0);
+        
+        if(totalThisMonth < 10){
+          alerts.push({
+            type: "warning",
+            title: "💧 Volume Crítico",
+            msg: `Este mês em ${season}: apenas ${Math.round(totalThisMonth)}mm`
+          });
+        }
+      });
+
+      return alerts;
+    }
+
+    function renderAlerts(){
+      const container = document.getElementById("alertContainer");
+      container.innerHTML = "";
+
+      const alerts = checkAlerts();
+      if(alerts.length === 0) return;
+
+      alerts.forEach(a => {
+        const el = document.createElement("div");
+        el.className = `alert-banner ${a.type}`;
+        el.innerHTML = `<div class="flex-1"><strong>${a.title}</strong><p class="text-sm mt-1">${a.msg}</p></div>`;
+        container.appendChild(el);
+      });
+    }
+
+    // ============================================================
+    // 5) UI: CHIPS, KPI, RANKING
+    // ============================================================
+    function getSeasons(){
+      return [...new Set(state.data.map(d => d.season))].sort((a,b) => Number(b)-Number(a));
+    }
+
+    function renderSeasonChips(){
+      const seasons = getSeasons();
+      const box = document.getElementById("seasonChips");
+      box.innerHTML = "";
+
+      seasons.forEach(season => {
+        const active = state.selectedSeasons.includes(season);
+        const btn = document.createElement("button");
+        btn.className = `chip-season ${active ? "active" : ""}`;
+        btn.textContent = season;
+        btn.type = "button";
+        btn.onclick = () => toggleSeason(season);
+        btn.setAttribute("aria-pressed", active);
+        box.appendChild(btn);
+      });
+    }
+
+    function toggleSeason(season){
+      const idx = state.selectedSeasons.indexOf(season);
+      if(idx >= 0){
+        state.selectedSeasons.splice(idx, 1);
+      } else {
+        if(state.selectedSeasons.length >= 4){
+          showToast("⚠️ Máximo 4 safras para comparação");
+          return;
+        }
+        state.selectedSeasons.push(season);
+      }
+      invalidateCache();
+      rebuild();
+    }
+
+    function selectPreset(type){
+      const totals = annualTotals();
+      if(totals.length === 0) return;
+
+      if(type === "clear") state.selectedSeasons = [];
+      else if(type === "last") state.selectedSeasons = [totals[totals.length-1].season];
+      else if(type === "best") state.selectedSeasons = [totals.sort((a,b) => b.total - a.total)[0].season];
+      else if(type === "worst") state.selectedSeasons = [totals.sort((a,b) => a.total - b.total)[0].season];
+
+      invalidateCache();
+      rebuild();
+    }
+
+    function invalidateCache(){
+      state.cachedTotals = null;
+      state.cachedClassification = null;
+    }
+
+    function renderKPIs(){
+      const totals = annualTotals();
+      const { map } = classifySeasons();
+
+      const best = totals.length ? totals.sort((a,b) => b.total - a.total)[0] : null;
+      const worst = totals.length ? totals.sort((a,b) => a.total - b.total)[0] : null;
+
+      let selTotal = 0, selDays = 0;
+      state.selectedSeasons.forEach(s => {
+        const t = totals.find(x => x.season === s);
+        if(t) selTotal += t.total;
+        selDays += dailyBySeason(s).length;
+      });
+
+      const html = `
+        <div class="p-3 border-2 border-good-light rounded-lg bg-good-light">
+          <p class="text-xs font-bold text-slate-600 uppercase mb-1">Melhor Safra</p>
+          <p class="text-2xl font-bold text-good-dark">${best ? best.total : 0}<span class="text-sm text-slate-600">mm</span></p>
+          <p class="text-xs text-slate-600">${best ? "Safra " + best.season : "-"}</p>
+        </div>
+        <div class="p-3 border-2 border-bad-light rounded-lg bg-bad-light">
+          <p class="text-xs font-bold text-slate-600 uppercase mb-1">Pior Safra</p>
+          <p class="text-2xl font-bold text-bad-dark">${worst ? worst.total : 0}<span class="text-sm text-slate-600">mm</span></p>
+          <p class="text-xs text-slate-600">${worst ? "Safra " + worst.season : "-"}</p>
+        </div>
+        <div class="p-3 border-2 border-slate-300 rounded-lg bg-white col-span-full">
+          <p class="text-xs font-bold text-slate-600 uppercase mb-2">Seleção Atual</p>
+          <p class="text-sm font-bold mb-1">${state.selectedSeasons.length ? state.selectedSeasons.join(", ") : "Nenhuma"}</p>
+          <p class="text-xs text-slate-600">Total: <strong>${formatNumber(selTotal)}</strong>mm | Dias: <strong>${selDays}</strong></p>
+        </div>
+      `;
+
+      document.getElementById("kpiContainer").innerHTML = `<div class="grid grid-cols-2 gap-3">${html}</div>`;
+
+      // Ranking
+      const rankBox = document.getElementById("rankingBox");
+      const sorted = [...totals].sort((a,b) => b.total - a.total);
+      const top = sorted.slice(0,5), bot = sorted.reverse().slice(0,5);
+
+      const badgeClass = (season) => {
+        const cls = map.get(season) || "mid";
+        if(cls === "good") return "bg-good-light text-good-dark";
+        if(cls === "bad") return "bg-bad-light text-bad-dark";
+        return "bg-slate-100 text-slate-700";
+      };
+
+      const rankHtml = `
+        <div class="font-bold text-sm mb-2">Top 5</div>
+        ${top.length ? top.map((x,i) => `
+          <div class="flex justify-between items-center p-2 bg-slate-50 rounded-lg mb-1">
+            <span class="text-sm font-bold">${i+1}. Safra ${x.season}</span>
+            <div class="flex gap-2 items-center">
+              <span class="text-xs px-2 py-1 rounded-full ${badgeClass(x.season)}">${map.get(x.season) === "good" ? "Bom" : (map.get(x.season) === "bad" ? "Ruim" : "Regular")}</span>
+              <span class="font-bold">${x.total}mm</span>
+            </div>
+          </div>
+        `).join("") : `<p class="text-xs text-slate-500">Sem dados</p>`}
+        
+        <div class="font-bold text-sm mt-3 mb-2">Bottom 5</div>
+        ${bot.length ? bot.map((x,i) => `
+          <div class="flex justify-between items-center p-2 bg-slate-50 rounded-lg mb-1">
+            <span class="text-sm font-bold">${i+1}. Safra ${x.season}</span>
+            <div class="flex gap-2 items-center">
+              <span class="text-xs px-2 py-1 rounded-full ${badgeClass(x.season)}">${map.get(x.season) === "good" ? "Bom" : (map.get(x.season) === "bad" ? "Ruim" : "Regular")}</span>
+              <span class="font-bold">${x.total}mm</span>
+            </div>
+          </div>
+        `).join("") : `<p class="text-xs text-slate-500">Sem dados</p>`}
+      `;
+
+      rankBox.innerHTML = rankHtml;
+    }
+
+    // ============================================================
+    // 6) GRÁFICOS (Chart.js)
+    // ============================================================
+    function destroyChart(){
+      if(chartMain){
+        chartMain.destroy();
+        chartMain = null;
+      }
+    }
+
+    function renderAnnualChart(){
+      const totals = annualTotals();
+      const { map, q1, q3 } = classifySeasons();
+
+      document.getElementById("chartTitle").textContent = "📈 Anual (Totais)";
+      document.getElementById("chartLabel").textContent = "Comparação por safra";
+      document.getElementById("modeHint").textContent = "Selecione safras para destacá-las";
+      document.getElementById("modeHint2").textContent = totals.length ? `${totals.length} safras no histórico` : "Sem dados";
+
+      destroyChart();
+
+      const labels = totals.map(t => t.season);
+      const values = totals.map(t => t.total);
+      const selected = new Set(state.selectedSeasons);
+
+      const colors = labels.map(season => {
+        const cls = map.get(season) || "mid";
+        return cls === "good" ? "#10b981" : (cls === "bad" ? "#dc2626" : "#2563eb");
+      });
+
+      chartMain = new Chart(document.getElementById("mainChart"), {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "Total Anual (mm)",
+            data: values,
+            backgroundColor: colors,
+            borderColor: labels.map(s => selected.has(s) ? "#0f172a" : "#e2e8f0"),
+            borderWidth: labels.map(s => selected.has(s) ? 3 : 1),
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: "mm" } }
+          }
+        }
+      });
+    }
+
+    function renderMonthlyChart(){
+      const seasons = state.selectedSeasons.length ? state.selectedSeasons : [];
+
+      document.getElementById("chartTitle").textContent = "📅 Mensal (Comparativo)";
+      document.getElementById("chartLabel").textContent = seasons.length ? ("Safras: " + seasons.join(", ")) : "Selecione até 4";
+      document.getElementById("modeHint").textContent = "";
+
+      destroyChart();
+
+      if(seasons.length === 0){
+        chartMain = new Chart(document.getElementById("mainChart"), {
+          type: "bar",
+          data: {
+            labels: monthNames,
+            datasets: [{ label: "Selecione safras", data: Array(12).fill(0), backgroundColor: "#e2e8f0" }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+          }
+        });
+        return;
+      }
+
+      const palette = ["#2563eb", "#10b981", "#f97316", "#dc2626"];
+      const datasets = seasons.map((s, idx) => ({
+        label: "Safra " + s,
+        data: monthlyTotalsForSeason(s),
+        backgroundColor: palette[idx % palette.length],
+        borderRadius: 4
+      }));
+
+      chartMain = new Chart(document.getElementById("mainChart"), {
+        type: "bar",
+        data: { labels: monthNames, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "bottom" } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+
+    function renderDailyChart(){
+      const season = state.selectedSeasons[0];
+
+      document.getElementById("chartTitle").textContent = "📊 Diário + Acumulado";
+      document.getElementById("modeHint").textContent = "";
+
+      destroyChart();
+
+      if(!season){
+        document.getElementById("chartLabel").textContent = "Selecione 1 safra";
+        chartMain = new Chart(document.getElementById("mainChart"), {
+          type: "bar",
+          data: {
+            labels: ["-"],
+            datasets: [{ label: "Selecione 1 safra", data: [0], backgroundColor: "#e2e8f0" }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+          }
+        });
+        return;
+      }
+
+      const arr = dailyBySeason(season);
+      document.getElementById("chartLabel").textContent = "Safra " + season;
+
+      if(arr.length === 0){
+        chartMain = new Chart(document.getElementById("mainChart"), {
+          type: "bar",
+          data: {
+            labels: ["Sem registros"],
+            datasets: [{ label: "Chuva (mm)", data: [0], backgroundColor: "#e2e8f0" }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+          }
+        });
+        return;
+      }
+
+      const labels = arr.map(r => {
+        const d = r.dt;
+        return String(d.getDate()).padStart(2,"0") + "/" + String(d.getMonth()+1).padStart(2,"0");
+      });
+
+      const values = arr.map(r => Math.round(r.value));
+      let acc = 0;
+      const acum = values.map(v => (acc += v));
+
+      chartMain = new Chart(document.getElementById("mainChart"), {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: "Chuva (mm)", data: values, backgroundColor: "#2563eb", borderRadius: 4, yAxisID: "y" },
+            { type: "line", label: "Acumulado", data: acum, borderColor: "#10b981", borderWidth: 2, pointRadius: 0, yAxisID: "y1" }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "bottom" } },
+          scales: {
+            x: { ticks: { autoSkip: true, maxTicksLimit: 12 } },
+            y: { beginAtZero: true, position: "left" },
+            y1: { beginAtZero: true, position: "right", grid: { drawOnChartArea: false } }
+          }
+        }
+      });
+    }
+
+    // ============================================================
+    // 7) HEATMAP
+    // ============================================================
+    function renderHeatmap(){
+      const season = state.selectedSeasons[0];
+      const card = document.getElementById("cardHeatmap");
+      const container = document.getElementById("heatmapContainer");
+      container.innerHTML = "";
+
+      if(!season){
+        container.innerHTML = `<p class="text-slate-600 text-sm col-span-full">Selecione 1 safra para visualizar o calendário.</p>`;
+        return;
+      }
+
+      const dados = dailyBySeason(season);
+      if(dados.length === 0){
+        container.innerHTML = `<p class="text-slate-600 text-sm col-span-full">Sem registros para a safra ${season}.</p>`;
+        return;
+      }
+
+      const grouped = {};
+      dados.forEach(d => {
+        const key = `${d.dt.getFullYear()}-${d.dt.getMonth()}`;
+        if(!grouped[key]){
+          grouped[key] = { year: d.dt.getFullYear(), month: d.dt.getMonth(), days: [] };
+        }
+        grouped[key].days.push(d);
+      });
+
+      const blocks = Object.values(grouped).sort((a,b) =>
+        a.year !== b.year ? a.year - b.year : a.month - b.month
+      );
+
+      blocks.forEach(b => {
+        b.days.sort((x,y) => x.dt - y.dt);
+
+        const daysHtml = b.days.map(day => {
+          const v = Number(day.value) || 0;
+          let lvl = "bg-slate-300";
+          if(v > 0 && v <= 20) lvl = "bg-blue-300";
+          if(v > 20 && v <= 50) lvl = "bg-rain-base";
+          if(v > 50 && v <= 90) lvl = "bg-rain-dark";
+          if(v > 90) lvl = "bg-good-base border-2 border-yellow-400";
+
+          return `<div class="heatmap-cell ${lvl} text-white" title="${formatDate(day.date)}: ${Math.round(v)}mm">${day.dt.getDate()}</div>`;
+        }).join("");
+
+        container.innerHTML += `
+          <div class="border border-slate-200 rounded-lg p-3">
+            <p class="text-xs font-bold text-slate-600 mb-2">${monthNames[b.month]} ${b.year}</p>
+            <div class="grid grid-cols-7 gap-1">${daysHtml}</div>
+          </div>
+        `;
+      });
+    }
+
+    // ============================================================
+    // 8) TABELA
+    // ============================================================
+    function renderTable(){
+      let arr;
+      const hint = document.getElementById("tableHint");
+
+      if(state.selectedSeasons.length){
+        const set = new Set(state.selectedSeasons);
+        arr = state.data.filter(r => r.kind === "daily" && set.has(r.season));
+        hint.textContent = `Filtro: Safras ${state.selectedSeasons.join(", ")}`;
+      } else {
+        arr = state.data.filter(r => r.kind === "daily");
+        hint.textContent = "Filtro: Todos os registros";
+      }
+
+      arr = arr.sort((a,b) => new Date(b.date + "T00:00:00") - new Date(a.date + "T00:00:00"))
+               .slice(0, 120);
+
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = arr.map(d => `
+        <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+          <td class="px-4 py-3 text-sm">${formatDate(d.date)}</td>
+          <td class="px-4 py-3 text-sm text-center font-bold text-rain-base">${formatNumber(d.value)} mm</td>
+          <td class="px-4 py-3 text-sm text-center"><span class="text-xs px-2 py-1 bg-blue-100 text-blue-900 rounded-full font-bold">${d.season}</span></td>
+        </tr>
+      `).join("") || `<tr><td colspan="3" class="px-4 py-6 text-center text-sm text-slate-500">Sem registros</td></tr>`;
+    }
+
+    // ============================================================
+    // 9) MODO E REBUILD
+    // ============================================================
+    function renderByMode(){
+      const cardChart = document.getElementById("cardChart");
+      const cardHeatmap = document.getElementById("cardHeatmap");
+
+      cardChart.classList.remove("hidden");
+      cardHeatmap.classList.add("hidden");
+
+      if(state.viewMode === "annual"){
+        renderAnnualChart();
+      } else if(state.viewMode === "monthly"){
+        renderMonthlyChart();
+      } else if(state.viewMode === "daily"){
+        renderDailyChart();
+      } else if(state.viewMode === "calendar"){
+        cardHeatmap.classList.remove("hidden");
+        renderDailyChart();
+        renderHeatmap();
+        document.getElementById("chartTitle").textContent = "📅 Calendário + Contexto";
+      }
+    }
+
+    function rebuild(){
+      renderSeasonChips();
+      renderKPIs();
+      renderByMode();
+      renderTable();
+      renderAlerts();
+
+      // Update mode hints
+      const modeEl = document.querySelector('input[name="viewMode"]:checked');
+      if(modeEl){
+        if(modeEl.id === "modeDaily" || modeEl.id === "modeCalendar"){
+          state.viewMode = modeEl.id === "modeDaily" ? "daily" : "calendar";
+          if(state.selectedSeasons.length === 0){
+            document.getElementById("modeHint").textContent = "⚠️ Selecione 1 safra para esta visão";
+          }
+        } else if(modeEl.id === "modeMonthly"){
+          state.viewMode = "monthly";
+          if(state.selectedSeasons.length === 0){
+            document.getElementById("modeHint").textContent = "⚠️ Selecione até 4 safras";
+          }
+        } else {
+          state.viewMode = "annual";
+        }
+      }
+    }
+
+    // ============================================================
+    // 10) ADICIONAR REGISTRO
+    // ============================================================
     function addRecord(){
       const date = document.getElementById("addDate").value;
       const value = Number(document.getElementById("addValue").value);
       const season = document.getElementById("addSeason").value.trim();
 
       if(!date || !isValidISODate(date)){
-        showToast("Informe uma data válida.");
+        showToast("❌ Data inválida");
         return;
       }
       if(!season || !/^\d{4}$/.test(season)){
-        showToast("Informe a safra no formato AAAA (ex.: 2026).");
+        showToast("❌ Safra deve ser um ano (AAAA)");
         return;
       }
       if(Number.isNaN(value) || value < 0){
-        showToast("Informe um volume (mm) válido.");
+        showToast("❌ Volume inválido");
         return;
       }
 
@@ -555,30 +1105,20 @@
       saveExtra(extra);
 
       state.data = loadData();
+      invalidateCache();
       rebuild();
-
-      const modalEl = document.getElementById("modalAdd");
-      const modal = bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl);
-      modal.hide();
-
-      document.getElementById("addDate").value = "";
-      document.getElementById("addValue").value = "";
-      document.getElementById("addSeason").value = "";
-
-      showToast("Registro salvo.");
+      closeAddModal();
+      showToast("✅ Registro salvo com sucesso");
     }
 
-    // ==========================================================
-    // 4) EXPORTAÇÃO/IMPORTAÇÃO CSV
-    // ==========================================================
+    // ============================================================
+    // 11) IMPORTAÇÃO/EXPORTAÇÃO CSV
+    // ============================================================
     function toCSV(rows){
       const header = ["date","value","season"];
       const lines = [header.join(",")];
-      rows.forEach(r=>{
-        const d = String(r.date);
-        const v = String(Number(r.value) || 0);
-        const s = String(r.season);
-        lines.push([d,v,s].join(","));
+      rows.forEach(r => {
+        lines.push([String(r.date), String(r.value), String(r.season)].join(","));
       });
       return lines.join("\n");
     }
@@ -586,34 +1126,34 @@
     function exportCSV(){
       const extra = loadExtra();
       if(extra.length === 0){
-        showToast("Não há registros manuais para exportar.");
+        showToast("⚠️ Sem registros para exportar");
         return;
       }
       const csv = toCSV(extra);
-      const blob = new Blob([csv], { type:"text/csv;charset=utf-8;" });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = "fazenda_cacimbas_registros.csv";
-      document.body.appendChild(a);
       a.click();
-      a.remove();
       URL.revokeObjectURL(url);
-      showToast("CSV exportado.");
+      showToast("✅ CSV exportado");
     }
 
     function parseCSV(text){
-      const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
       if(lines.length < 2) return [];
-      const header = lines[0].split(",").map(h=>h.trim().toLowerCase());
+
+      const header = lines[0].split(",").map(h => h.trim().toLowerCase());
       const idxDate = header.indexOf("date");
       const idxValue = header.indexOf("value");
       const idxSeason = header.indexOf("season");
+
       if(idxDate < 0 || idxValue < 0 || idxSeason < 0) return [];
 
       const out = [];
-      for(let i=1;i<lines.length;i++){
-        const parts = lines[i].split(",").map(p=>p.trim());
+      for(let i = 1; i < Math.min(lines.length, 5001); i++){
+        const parts = lines[i].split(",").map(p => p.trim());
         const date = parts[idxDate];
         const value = Number(parts[idxValue]);
         const season = parts[idxSeason];
@@ -628,28 +1168,28 @@
     }
 
     function importCSV(event){
-      const file = event.target.files && event.target.files[0];
+      const file = event.target.files?.[0];
       if(!file) return;
 
       const reader = new FileReader();
       reader.onload = () => {
         const text = String(reader.result || "");
         const rows = parseCSV(text);
+
         if(rows.length === 0){
-          showToast("CSV inválido ou sem registros compatíveis.");
+          showToast("❌ CSV inválido");
           return;
         }
 
         const current = loadExtra();
         const merged = [...current, ...rows];
 
-        // Dedup por (season, date). Se duplicado, soma.
         const map = new Map();
-        merged.forEach(r=>{
+        merged.forEach(r => {
           const k = `${r.season}__${r.date}`;
           if(!map.has(k)){
             map.set(k, { ...r });
-          }else{
+          } else {
             const ex = map.get(k);
             ex.value += r.value;
             map.set(k, ex);
@@ -658,629 +1198,48 @@
 
         saveExtra(Array.from(map.values()));
         state.data = loadData();
+        invalidateCache();
         rebuild();
-        showToast(`Importação concluída: ${rows.length} registros lidos.`);
+        showToast(`✅ ${rows.length} registros importados`);
       };
       reader.readAsText(file);
-
-      // permite importar o mesmo arquivo novamente
       event.target.value = "";
     }
 
-    // ==========================================================
-    // 5) AGRUPAMENTOS E MÉTRICAS
-    // ==========================================================
-    function getSeasons(){
-      return [...new Set(state.data.map(d => d.season))]
-        .sort((a,b)=>Number(b)-Number(a));
-    }
+    // ============================================================
+    // 12) INICIALIZAÇÃO
+    // ============================================================
+    window.addEventListener("load", () => {
+      document.getElementById("currentDate").textContent = 
+        new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
-    function annualTotals(){
-      // Preferência:
-      // - Se existir annual_total para a safra: usa esse valor.
-      // - Senão: soma daily.
-      const bySeason = {};
-      const hasAnnual = new Set();
-
-      state.data.forEach(r=>{
-        if(!bySeason[r.season]) bySeason[r.season] = { annual: 0, dailySum: 0 };
-        if(r.kind === "annual_total"){
-          bySeason[r.season].annual += r.value;
-          hasAnnual.add(r.season);
-        }else{
-          bySeason[r.season].dailySum += r.value;
-        }
-      });
-
-      return Object.keys(bySeason)
-        .map(season=>{
-          const total = hasAnnual.has(season) ? bySeason[season].annual : bySeason[season].dailySum;
-          return { season, total: Math.round(total) };
-        })
-        .sort((a,b)=>Number(a.season)-Number(b.season));
-    }
-
-    function quartiles(nums){
-      const a = [...nums].sort((x,y)=>x-y);
-      const q = (p)=>{
-        const pos = (a.length - 1) * p;
-        const base = Math.floor(pos);
-        const rest = pos - base;
-        if(a[base+1] === undefined) return a[base];
-        return a[base] + rest * (a[base+1] - a[base]);
-      };
-      return { q1: q(0.25), q3: q(0.75) };
-    }
-
-    function classifySeasons(){
-      const totals = annualTotals();
-      const values = totals.map(t=>t.total);
-
-      if(values.length < 4){
-        const sorted = [...values].sort((a,b)=>a-b);
-        const median = sorted[Math.floor(sorted.length/2)] || 0;
-        const map = new Map();
-        totals.forEach(t=>{
-          map.set(t.season, t.total >= median ? "good" : "bad");
-        });
-        return { map, q1: null, q3: null };
-      }
-
-      const { q1, q3 } = quartiles(values);
-      const map = new Map();
-      totals.forEach(t=>{
-        let cls = "mid";
-        if(t.total <= q1) cls = "bad";
-        if(t.total >= q3) cls = "good";
-        map.set(t.season, cls);
-      });
-      return { map, q1, q3 };
-    }
-
-    function dailyBySeason(season){
-      return state.data
-        .filter(r => r.kind === "daily" && r.season === season)
-        .map(r => ({...r, dt: new Date(r.date + "T00:00:00")}))
-        .sort((a,b)=>a.dt-b.dt);
-    }
-
-    function monthlyTotalsForSeason(season){
-      const arr = dailyBySeason(season);
-      const months = Array(12).fill(0);
-      arr.forEach(r=>{
-        months[r.dt.getMonth()] += r.value;
-      });
-      return months.map(v=>Math.round(v));
-    }
-
-    // ==========================================================
-    // 6) UI: SAFRAS (CHIPS) E PRESETS
-    // ==========================================================
-    function renderSeasonChips(){
-      const seasons = getSeasons();
-      const box = document.getElementById("seasonChips");
-      box.innerHTML = "";
-
-      seasons.forEach(season=>{
-        const active = state.selectedSeasons.includes(season);
-        const el = document.createElement("button");
-        el.className = active ? "chip active" : "chip";
-        el.type = "button";
-        el.textContent = season;
-        el.onclick = () => toggleSeason(season);
-        box.appendChild(el);
-      });
-    }
-
-    function toggleSeason(season){
-      const idx = state.selectedSeasons.indexOf(season);
-      if(idx >= 0){
-        state.selectedSeasons.splice(idx, 1);
-      }else{
-        if(state.selectedSeasons.length >= 4){
-          showToast("Selecione no máximo 4 safras para comparação.");
-          return;
-        }
-        state.selectedSeasons.push(season);
-      }
-      rebuild();
-    }
-
-    function selectPreset(type){
-      const totals = annualTotals();
-      if(totals.length === 0) return;
-
-      if(type === "clear"){
-        state.selectedSeasons = [];
-        rebuild();
-        return;
-      }
-
-      if(type === "last"){
-        state.selectedSeasons = [totals[totals.length-1].season];
-        rebuild();
-        return;
-      }
-
-      if(type === "best"){
-        const best = [...totals].sort((a,b)=>b.total-a.total)[0].season;
-        state.selectedSeasons = [best];
-        rebuild();
-        return;
-      }
-
-      if(type === "worst"){
-        const worst = [...totals].sort((a,b)=>a.total-b.total)[0].season;
-        state.selectedSeasons = [worst];
-        rebuild();
-        return;
-      }
-    }
-
-    // ==========================================================
-    // 7) KPI + RANKING
-    // ==========================================================
-    function renderKPIs(){
-      const totals = annualTotals();
-      const { map } = classifySeasons();
-
-      const best = totals.length ? [...totals].sort((a,b)=>b.total-a.total)[0] : null;
-      const worst = totals.length ? [...totals].sort((a,b)=>a.total-b.total)[0] : null;
-
-      let selTotal = 0;
-      let selDays = 0;
-      const seasons = state.selectedSeasons.length ? state.selectedSeasons : [];
-
-      seasons.forEach(s=>{
-        const t = totals.find(x=>x.season===s);
-        if(t) selTotal += t.total;
-        selDays += dailyBySeason(s).length;
-      });
-
-      const kpiBox = document.getElementById("kpiContainer");
-      kpiBox.innerHTML = `
-        <div class="col-6">
-          <div class="p-2 border rounded bg-white h-100">
-            <div class="kpi-label">Melhor safra</div>
-            <div class="kpi-value">${best ? best.total : 0} <small class="fs-6 text-muted">mm</small></div>
-            <div class="kpi-sub">${best ? "Safra " + best.season : "-"}</div>
-          </div>
-        </div>
-        <div class="col-6">
-          <div class="p-2 border rounded bg-white h-100">
-            <div class="kpi-label">Pior safra</div>
-            <div class="kpi-value" style="color: var(--danger-red)">${worst ? worst.total : 0} <small class="fs-6 text-muted">mm</small></div>
-            <div class="kpi-sub">${worst ? "Safra " + worst.season : "-"}</div>
-          </div>
-        </div>
-        <div class="col-12">
-          <div class="p-2 border rounded bg-white">
-            <div class="kpi-label">Seleção atual</div>
-            <div class="d-flex justify-content-between flex-wrap gap-2">
-              <div><span class="fw-bold">${seasons.length ? seasons.join(", ") : "Nenhuma"}</span></div>
-              <div class="text-muted">Total: <span class="fw-bold">${Math.round(selTotal)}</span> mm | Dias: <span class="fw-bold">${selDays}</span></div>
-            </div>
-          </div>
-        </div>
-      `;
-
-      const rankBox = document.getElementById("rankingBox");
-      const sorted = [...totals].sort((a,b)=>b.total-a.total);
-      const top = sorted.slice(0,5);
-      const bot = [...sorted].reverse().slice(0,5);
-
-      function badgeFor(season){
-        const cls = map.get(season) || "mid";
-        if(cls==="good") return `<span class="badge badge-good">Bom</span>`;
-        if(cls==="bad") return `<span class="badge badge-bad">Ruim</span>`;
-        return `<span class="badge badge-mid">Regular</span>`;
-      }
-
-      function row(x, idx){
-        return `
-          <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2 bg-white">
-            <div class="fw-bold">${idx+1}. Safra ${x.season}</div>
-            <div class="d-flex align-items-center gap-2">
-              ${badgeFor(x.season)}
-              <span class="fw-bold">${x.total} mm</span>
-            </div>
-          </div>
-        `;
-      }
-
-      rankBox.innerHTML = `
-        <div class="fw-bold mb-2">Top 5</div>
-        ${top.length ? top.map((x,i)=>row(x,i)).join("") : `<div class="text-muted">Sem dados suficientes.</div>`}
-        <div class="fw-bold mt-3 mb-2">Bottom 5</div>
-        ${bot.length ? bot.map((x,i)=>row(x,i)).join("") : `<div class="text-muted">Sem dados suficientes.</div>`}
-      `;
-    }
-
-    // ==========================================================
-    // 8) GRÁFICOS (Chart.js)
-    // ==========================================================
-    function destroyChart(){
-      if(chartMain){
-        chartMain.destroy();
-        chartMain = null;
-      }
-    }
-
-    function chartBaseOptions(){
-      return {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: { duration: 250 },
-        interaction: { mode: "index", intersect: false }
-      };
-    }
-
-    function renderAnnualChart(){
-      const totals = annualTotals();
-      const { map, q1, q3 } = classifySeasons();
-
-      const labels = totals.map(t=>t.season);
-      const values = totals.map(t=>t.total);
-
-      document.getElementById("chartTitle").textContent = "Anual (Totais)";
-      document.getElementById("chartLabel").textContent = "Comparação por safra (mm)";
-      document.getElementById("modeHint").textContent = "Recomendado para identificar anos bons/ruins e tendência histórica.";
-
-      destroyChart();
-
-      const selected = new Set(state.selectedSeasons);
-
-      chartMain = new Chart(document.getElementById("mainChart"),{
-        type:"line",
-        data:{
-          labels,
-          datasets:[
-            {
-              label:"Total anual (mm)",
-              data: values,
-              borderWidth: 2,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-              borderColor: "#2563eb",
-              backgroundColor: "rgba(37, 99, 235, 0.12)",
-              fill: true,
-              segment: {
-                borderColor: (ctx) => {
-                  const season = labels[ctx.p0DataIndex];
-                  const cls = map.get(season) || "mid";
-                  if(cls==="good") return "#10b981";
-                  if(cls==="bad") return "#ef4444";
-                  return "#2563eb";
-                }
-              },
-              pointBackgroundColor: (ctx) => {
-                const season = labels[ctx.dataIndex];
-                const cls = map.get(season) || "mid";
-                if(cls==="good") return "#10b981";
-                if(cls==="bad") return "#ef4444";
-                return "#2563eb";
-              },
-              pointBorderColor: (ctx) => selected.has(labels[ctx.dataIndex]) ? "#0f172a" : "#ffffff",
-              pointBorderWidth: (ctx) => selected.has(labels[ctx.dataIndex]) ? 3 : 1
-            }
-          ]
-        },
-        options:{
-          ...chartBaseOptions(),
-          plugins:{
-            legend:{ display:false },
-            tooltip:{
-              callbacks:{
-                afterLabel: (ctx)=>{
-                  const season = ctx.label;
-                  const cls = map.get(season) || "mid";
-                  const tag = cls==="good" ? "Bom" : (cls==="bad" ? "Ruim" : "Regular");
-                  const extra = (q1!=null && q3!=null) ? ` (Q1≈${q1.toFixed(0)} | Q3≈${q3.toFixed(0)})` : "";
-                  const sel = selected.has(season) ? " [Selecionada]" : "";
-                  return `Classificação: ${tag}${extra}${sel}`;
-                }
-              }
-            }
-          },
-          scales:{
-            y:{ beginAtZero:true, title:{ display:true, text:"mm" } }
-          }
-        }
-      });
-    }
-
-    function renderMonthlyCompareChart(){
-      const seasons = state.selectedSeasons.length ? state.selectedSeasons : [];
-
-      document.getElementById("chartTitle").textContent = "Mensal (Comparativo)";
-      document.getElementById("chartLabel").textContent = seasons.length ? ("Safras: " + seasons.join(", ")) : "Selecione até 4 safras";
-      document.getElementById("modeHint").textContent = "Comparação por mês. Útil para entender o ciclo (pico e distribuição).";
-
-      destroyChart();
-
-      if(seasons.length === 0){
-        chartMain = new Chart(document.getElementById("mainChart"),{
-          type:"bar",
-          data:{ labels: monthNames, datasets:[{ label:"Selecione safras", data: Array(12).fill(0), backgroundColor:"#e2e8f0", borderRadius: 6 }] },
-          options:{ ...chartBaseOptions(), plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true } } }
-        });
-        return;
-      }
-
-      const palette = ["#2563eb", "#10b981", "#f59e0b", "#ef4444"];
-      const datasets = seasons.map((s, idx)=>({
-        label: "Safra " + s,
-        data: monthlyTotalsForSeason(s),
-        backgroundColor: palette[idx % palette.length],
-        borderRadius: 6
-      }));
-
-      chartMain = new Chart(document.getElementById("mainChart"),{
-        type:"bar",
-        data:{ labels: monthNames, datasets },
-        options:{
-          ...chartBaseOptions(),
-          plugins:{ legend:{ position:"bottom" } },
-          scales:{ y:{ beginAtZero:true, title:{ display:true, text:"mm" } } }
-        }
-      });
-    }
-
-    function renderDailyChart(){
-      const season = state.selectedSeasons[0];
-
-      document.getElementById("chartTitle").textContent = "Diário + Acumulado";
-      document.getElementById("modeHint").textContent = "Visão operacional da safra selecionada. Mostra eventos e progressão do acumulado.";
-
-      destroyChart();
-
-      if(!season){
-        document.getElementById("chartLabel").textContent = "Selecione 1 safra";
-        chartMain = new Chart(document.getElementById("mainChart"),{
-          type:"bar",
-          data:{ labels:["-"], datasets:[{ label:"Selecione 1 safra", data:[0], backgroundColor:"#e2e8f0", borderRadius: 6 }] },
-          options:{ ...chartBaseOptions(), plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true } } }
-        });
-        return;
-      }
-
-      const arr = dailyBySeason(season);
-      document.getElementById("chartLabel").textContent = "Safra " + season + " (eventos diários)";
-
-      if(arr.length === 0){
-        chartMain = new Chart(document.getElementById("mainChart"),{
-          type:"bar",
-          data:{ labels:["Sem registros"], datasets:[{ label:"Chuva (mm)", data:[0], backgroundColor:"#e2e8f0", borderRadius: 6 }] },
-          options:{ ...chartBaseOptions(), plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true } } }
-        });
-        return;
-      }
-
-      const labels = arr.map(r=>{
-        const d = r.dt;
-        const dd = String(d.getDate()).padStart(2,"0");
-        const mm = String(d.getMonth()+1).padStart(2,"0");
-        return `${dd}/${mm}`;
-      });
-
-      const values = arr.map(r=>Math.round(r.value));
-      let acc = 0;
-      const acum = values.map(v => (acc += v));
-
-      chartMain = new Chart(document.getElementById("mainChart"),{
-        type:"bar",
-        data:{
-          labels,
-          datasets:[
-            { label:"Chuva (mm)", data: values, backgroundColor:"#2563eb", borderRadius: 4, yAxisID:"y" },
-            { type:"line", label:"Acumulado", data: acum, borderColor:"#10b981", borderWidth: 2, pointRadius: 0, tension: 0.25, yAxisID:"y1" }
-          ]
-        },
-        options:{
-          ...chartBaseOptions(),
-          plugins:{ legend:{ position:"bottom" } },
-          scales:{
-            x:{ ticks:{ maxRotation:0, minRotation:0, autoSkip: true, maxTicksLimit: 12 } },
-            y:{ beginAtZero:true, position:"left", title:{ display:true, text:"mm (dia)" } },
-            y1:{ beginAtZero:true, position:"right", grid:{ drawOnChartArea:false }, title:{ display:true, text:"mm (acum.)" } }
-          }
-        }
-      });
-    }
-
-    // ==========================================================
-    // 9) HEATMAP + TABELA
-    // ==========================================================
-    function renderHeatmap(){
-      const season = state.selectedSeasons[0];
-      const card = document.getElementById("cardHeatmap");
-      const container = document.getElementById("heatmapContainer");
-      container.innerHTML = "";
-
-      card.classList.remove("d-none");
-
-      if(!season){
-        container.innerHTML = `<div class="text-muted">Selecione 1 safra para visualizar o calendário.</div>`;
-        return;
-      }
-
-      const dados = dailyBySeason(season);
-      if(dados.length === 0){
-        container.innerHTML = `<div class="text-muted">Sem registros diários para a safra ${season}.</div>`;
-        return;
-      }
-
-      // Agrupa por mês/ano
-      const grouped = {};
-      dados.forEach(d=>{
-        const key = `${d.dt.getFullYear()}-${d.dt.getMonth()}`;
-        if(!grouped[key]){
-          grouped[key] = { year: d.dt.getFullYear(), month: d.dt.getMonth(), days: [] };
-        }
-        grouped[key].days.push(d);
-      });
-
-      const blocks = Object.values(grouped).sort((a,b)=>{
-        if(a.year !== b.year) return a.year - b.year;
-        return a.month - b.month;
-      });
-
-      blocks.forEach(b=>{
-        b.days.sort((x,y)=> x.dt - y.dt);
-
-        let daysHtml = "";
-        b.days.forEach(day=>{
-          const v = Number(day.value) || 0;
-          let lvl = "lvl-1";
-          if(v === 0) lvl = "lvl-0";
-          if(v > 20) lvl = "lvl-2";
-          if(v > 50) lvl = "lvl-3";
-          if(v > 90) lvl = "lvl-4";
-          const title = `${day.dt.toLocaleDateString("pt-BR")}: ${Math.round(v)} mm`;
-          daysHtml += `<div class="rain-day ${lvl}" title="${title}">${day.dt.getDate()}</div>`;
-        });
-
-        container.innerHTML += `
-          <div class="month-block">
-            <div class="month-title">${monthNames[b.month]} ${b.year}</div>
-            <div class="days-grid">${daysHtml}</div>
-          </div>
-        `;
-      });
-    }
-
-    function renderTable(){
-      const hint = document.getElementById("tableHint");
-      let arr;
-
-      if(state.selectedSeasons.length){
-        const set = new Set(state.selectedSeasons);
-        arr = state.data.filter(r => r.kind==="daily" && set.has(r.season));
-        hint.textContent = "Filtro: seleção";
-      }else{
-        arr = state.data.filter(r => r.kind==="daily");
-        hint.textContent = "Filtro: todos";
-      }
-
-      arr = arr.sort((a,b)=> new Date(b.date + "T00:00:00") - new Date(a.date + "T00:00:00"))
-               .slice(0,120);
-
-      const tbody = document.getElementById("tableBody");
-      tbody.innerHTML = "";
-
-      arr.forEach(d=>{
-        tbody.innerHTML += `
-          <tr>
-            <td>${new Date(d.date + "T00:00:00").toLocaleDateString("pt-BR")}</td>
-            <td><strong>${Math.round(d.value)} mm</strong></td>
-            <td><span class="badge-safra">${d.season}</span></td>
-          </tr>
-        `;
-      });
-    }
-
-    // ==========================================================
-    // 10) VIEW MODE (controle de cards) + RENDER
-    // ==========================================================
-    function setCardsForMode(mode){
-      const cardHeatmap = document.getElementById("cardHeatmap");
-      const cardChart = document.getElementById("cardChart");
-
-      // padrão
-      cardChart.classList.remove("d-none");
-      cardHeatmap.classList.add("d-none");
-
-      if(mode === "calendar"){
-        // exibe também o heatmap
-        cardHeatmap.classList.remove("d-none");
-      }
-    }
-
-    function renderByMode(){
-      setCardsForMode(state.viewMode);
-
-      if(state.viewMode === "annual"){
-        renderAnnualChart();
-      }else if(state.viewMode === "monthly"){
-        renderMonthlyCompareChart();
-      }else if(state.viewMode === "daily"){
-        renderDailyChart();
-      }else if(state.viewMode === "calendar"){
-        // no modo calendário, mantém o gráfico diário como contexto (acumulado) e mostra o heatmap
-        renderDailyChart();
-        renderHeatmap();
-        document.getElementById("chartTitle").textContent = "Calendário + Contexto Diário";
-        document.getElementById("chartLabel").textContent = state.selectedSeasons[0] ? ("Safra " + state.selectedSeasons[0]) : "Safra não selecionada";
-        document.getElementById("modeHint").textContent = "Heatmap da safra e gráfico diário/acumulado como apoio.";
-      }
-    }
-
-    // ==========================================================
-    // 11) REBUILD (ponto único para manter tudo consistente)
-    // ==========================================================
-    function rebuild(){
-      renderSeasonChips();
-      renderKPIs();
-      renderByMode();
-      renderTable();
-
-      const hint = document.getElementById("modeHint");
-      if(state.viewMode === "daily" || state.viewMode === "calendar"){
-        if(state.selectedSeasons.length === 0) hint.textContent = "Selecione 1 safra para esta visão.";
-      }else if(state.viewMode === "monthly"){
-        if(state.selectedSeasons.length === 0) hint.textContent = "Selecione até 4 safras para comparar mês a mês.";
-      }
-    }
-
-    // ==========================================================
-    // 12) INIT (corrigido: não depende de ids virarem variáveis globais)
-    // ==========================================================
-    window.onload = () => {
       state.data = loadData();
-
-      // seleção inicial: última safra disponível
       const totals = annualTotals();
       if(totals.length){
         state.selectedSeasons = [totals[totals.length-1].season];
       }
 
-      // listeners de modo (sem variável global)
-      const elModeAnnual   = document.getElementById("modeAnnual");
-      const elModeMonthly  = document.getElementById("modeMonthly");
-      const elModeDaily    = document.getElementById("modeDaily");
-      const elModeCalendar = document.getElementById("modeCalendar");
-
-      elModeAnnual.addEventListener("change", () => {
-        if(elModeAnnual.checked){
-          state.viewMode = "annual";
+      // Event listeners para modo
+      ["modeAnnual", "modeMonthly", "modeDaily", "modeCalendar"].forEach(id => {
+        document.getElementById(id).addEventListener("change", () => {
+          state.viewMode = {
+            modeAnnual: "annual",
+            modeMonthly: "monthly",
+            modeDaily: "daily",
+            modeCalendar: "calendar"
+          }[id];
+          invalidateCache();
           rebuild();
-        }
+        });
       });
 
-      elModeMonthly.addEventListener("change", () => {
-        if(elModeMonthly.checked){
-          state.viewMode = "monthly";
-          rebuild();
-        }
-      });
-
-      elModeDaily.addEventListener("change", () => {
-        if(elModeDaily.checked){
-          state.viewMode = "daily";
-          rebuild();
-        }
-      });
-
-      elModeCalendar.addEventListener("change", () => {
-        if(elModeCalendar.checked){
-          state.viewMode = "calendar";
-          rebuild();
-        }
+      // Fechar modal ao pressionar Esc
+      document.addEventListener("keydown", (e) => {
+        if(e.key === "Escape") closeAddModal();
       });
 
       rebuild();
-    };
+    });
   </script>
 </body>
 </html>
-```
