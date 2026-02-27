@@ -234,7 +234,6 @@
         // --- 1. BASE DE DADOS COMPLETA ---
         const rawData = [
             // --- DADOS HISTÓRICOS (TOTAIS) ---
-            // Nota: Lançados em 01/Jan para contabilidade. Substituir por detalhados futuramente.
             { date: '2013-01-01', value: 312, season: '2013' },
             { date: '2014-01-01', value: 499, season: '2014' },
             { date: '2015-01-01', value: 478, season: '2015' },
@@ -315,7 +314,15 @@
             { date: '2026-01-27', value: 59, season: '2026' },
             { date: '2026-01-29', value: 40, season: '2026' },
             { date: '2026-02-05', value: 20, season: '2026' },
-            { date: '2026-02-07', value: 8, season: '2026' }
+            { date: '2026-02-07', value: 8, season: '2026' },
+            // Novas adições: Fevereiro 2026
+            { date: '2026-02-08', value: 10, season: '2026' },
+            { date: '2026-02-11', value: 5, season: '2026' },
+            { date: '2026-02-12', value: 20, season: '2026' }, // 11mm + 09mm
+            { date: '2026-02-15', value: 4, season: '2026' },
+            { date: '2026-02-16', value: 38, season: '2026' }, // 24mm + 14mm
+            { date: '2026-02-18', value: 15, season: '2026' },
+            { date: '2026-02-27', value: 24, season: '2026' }
         ];
 
         // --- 2. CONFIGURAÇÕES GERAIS ---
@@ -333,16 +340,11 @@
         // --- 4. GERAR BOTÕES DE FILTRO AUTOMATICAMENTE ---
         function gerarBotoes() {
             const container = document.getElementById('filterContainer');
-            // Extrair anos únicos dos dados e ordenar reverso
             const seasons = [...new Set(rawData.map(d => d.season))].sort().reverse();
             
-            // Botão "Todos"
             let html = '<button class="filter-btn active" onclick="filtrarDados(\'all\', this)">Todos</button>';
-            
-            // Botão "Comparar"
             html += '<button class="filter-btn" onclick="filtrarDados(\'compare\', this)">Comparar Safras</button>';
             
-            // Botões por Ano
             seasons.forEach(year => {
                 html += `<button class="filter-btn" onclick="filtrarDados('${year}', this)">${year}</button>`;
             });
@@ -356,8 +358,6 @@
             if(btnElement) btnElement.classList.add('active');
 
             if(filtro === 'compare') {
-                // Modo comparação (pode ser implementado futuramente para gráficos multi-linha)
-                // Por enquanto, mostra todos para não quebrar a visualização
                 filtro = 'all';
                 alert("Modo Comparação: Exibindo visão geral de todos os invernos.");
             }
@@ -371,12 +371,10 @@
                 document.getElementById('chartLabel').textContent = `Inverno ${filtro}`;
             }
 
-            // Ordenações
             const sorted = [...dadosFiltrados].sort((a, b) => new Date(a.date) - new Date(b.date));
             const reversed = [...dadosFiltrados].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // Execuções
-            renderKPIs(rawData); // KPIs mostram sempre o geral
+            renderKPIs(rawData);
             renderCharts(sorted);
             renderStats(dadosFiltrados);
             renderHeatmap(sorted);
@@ -384,14 +382,12 @@
         }
 
         // --- 6. RENDERIZADORES ---
-        
         function renderKPIs(dados) {
             const seasonTotals = {};
             dados.forEach(d => seasonTotals[d.season] = (seasonTotals[d.season] || 0) + d.value);
             const container = document.getElementById('kpiContainer');
             container.innerHTML = '';
 
-            // Mostrar apenas os 4 mais recentes no topo para não poluir
             Object.keys(seasonTotals).sort().reverse().slice(0, 4).forEach(season => {
                 container.innerHTML += `
                     <div class="col-6 col-lg-3">
@@ -405,7 +401,6 @@
         }
 
         function renderCharts(dados) {
-            // Combo Chart
             const labels = dados.map(d => new Date(d.date).toLocaleDateString('pt-BR').slice(0,5));
             const values = dados.map(d => d.value);
             let acc = 0;
@@ -432,7 +427,6 @@
                 }
             });
 
-            // Radar Chart (Médias)
             const monthSums = Array(12).fill(0);
             const monthCounts = Array(12).fill(0);
             dados.forEach(d => {
@@ -468,8 +462,6 @@
             container.innerHTML = '';
             
             const grouped = {};
-            // Filtrar apenas dados RECENTES (últimos 3 anos) se for visualização "Todos" para não travar
-            // Se for filtro específico, mostra tudo daquele ano
             const dadosParaHeatmap = dados.length > 500 ? dados.slice(-365) : dados;
 
             [...dadosParaHeatmap].reverse().forEach(d => {
@@ -533,7 +525,6 @@
         function renderTable(dados) {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
-            // Limitar a 50 linhas para não pesar se for "Todos"
             const dadosTabela = dados.slice(0, 100); 
             
             dadosTabela.forEach(d => {
